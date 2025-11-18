@@ -27,4 +27,34 @@ router.get('/my-applications', authMiddleware, async (req: AuthRequest, res) => 
   }
 });
 
+// Eliminar un usuario QA (solo admin)
+router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Verificar que el usuario existe y es QA
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    if (user.role !== 'qa') {
+      return res.status(400).json({ message: 'Solo se pueden eliminar usuarios QA' });
+    }
+
+    // Eliminar el QA de las aplicaciones asignadas
+    await Application.updateMany(
+      { assignedQAs: id },
+      { $pull: { assignedQAs: id } }
+    );
+
+    // Eliminar el usuario
+    await User.findByIdAndDelete(id);
+
+    res.json({ message: 'Usuario QA eliminado exitosamente' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al eliminar usuario QA', error });
+  }
+});
+
 export default router;

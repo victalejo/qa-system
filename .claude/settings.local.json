@@ -10,7 +10,8 @@
       "Bash(GIT_SSH_COMMAND=\"ssh -i ~/.ssh/aurora -o StrictHostKeyChecking=no\" git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

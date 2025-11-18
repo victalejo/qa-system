@@ -61,6 +61,16 @@
   font-size: 12px;
 }
 
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -93,4 +103,11 @@
   gap: 10px;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+.form-text {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  color: #6c757d;
 }
