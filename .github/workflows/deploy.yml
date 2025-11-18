@@ -1,0 +1,57 @@
+name: Deploy to Dokku
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Permite ejecutar manualmente desde GitHub UI
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para git push
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DOKKU_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.DOKKU_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Dokku
+        env:
+          GIT_SSH_COMMAND: "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no"
+        run: |
+          git remote add dokku dokku@${{ secrets.DOKKU_HOST }}:${{ secrets.DOKKU_APP_NAME }} || true
+          git push dokku HEAD:refs/heads/main --force
+
+      - name: Verify Deployment
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 10
+
+          # Verificar health check
+          HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.DOKKU_DOMAIN }}/health)
+
+          if [ "$HEALTH_CHECK" = "200" ]; then
+            echo "✅ Deployment successful! Health check passed."
+          else
+            echo "❌ Health check failed with status: $HEALTH_CHECK"
+            exit 1
+          fi
+
+      - name: Deployment Status
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "🎉 Deployment to https://${{ secrets.DOKKU_DOMAIN }} completed successfully!"
+          else
+            echo "❌ Deployment failed. Check the logs above."
+          fi
