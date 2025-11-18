@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Iniciar Backend",
+			"type": "shell",
+			"command": "cd backend; npm run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Iniciar Frontend",
+			"type": "shell",
+			"command": "cd frontend; npm run dev",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}
