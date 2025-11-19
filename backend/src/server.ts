@@ -7,6 +7,7 @@ import authRoutes from './routes/auth.routes';
 import applicationRoutes from './routes/application.routes';
 import qaUserRoutes from './routes/qaUser.routes';
 import bugReportRoutes from './routes/bugReport.routes';
+import uploadRoutes from './routes/upload.routes';
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Servir archivos estáticos de uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Conectar a MongoDB
 connectDB();
@@ -39,6 +43,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/qa-users', qaUserRoutes);
 app.use('/api/bug-reports', bugReportRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Servir archivos estáticos del frontend en producción
 if (isProduction) {

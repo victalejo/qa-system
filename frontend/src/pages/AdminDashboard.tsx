@@ -1,6 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuthStore } from '../store/authStore'
 import api from '../lib/api'
+import BugReportDetailModal from '../components/BugReportDetailModal'
+import BugReportFilters, { FilterValues } from '../components/BugReportFilters'
+import Pagination from '../components/Pagination'
+import BugReportStats from '../components/BugReportStats'
 import './AdminDashboard.css'
 
 interface Application {
@@ -30,7 +34,7 @@ interface BugReport {
 
 export default function AdminDashboard() {
   const { user, logout } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'applications' | 'reports' | 'qa-users'>('applications')
+  const [activeTab, setActiveTab] = useState<'applications' | 'reports' | 'qa-users' | 'statistics'>('applications')
   const [applications, setApplications] = useState<Application[]>([])
   const [qaUsers, setQAUsers] = useState<QAUser[]>([])
   const [bugReports, setBugReports] = useState<BugReport[]>([])
@@ -38,6 +42,19 @@ export default function AdminDashboard() {
   const [showQAModal, setShowQAModal] = useState(false)
   const [showAppsModal, setShowAppsModal] = useState(false)
   const [selectedQAApps, setSelectedQAApps] = useState<Application[]>([])
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null)
+
+  // Estados para filtros y paginación
+  const [filters, setFilters] = useState<FilterValues>({
+    search: '',
+    severity: [],
+    status: [],
+    application: '',
+    dateFrom: '',
+    dateTo: ''
+  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(20)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -82,6 +99,91 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error al cargar reportes', error)
     }
+  }
+
+  // Filtrar y paginar reportes
+  const filteredAndPaginatedReports = useMemo(() => {
+    let filtered = [...bugReports]
+
+    // Búsqueda por texto
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      filtered = filtered.filter(
+        (report) =>
+          report.title.toLowerCase().includes(searchLower) ||
+          (report as any).description?.toLowerCase().includes(searchLower) ||
+          (report as any).consoleErrors?.toLowerCase().includes(searchLower) ||
+          (report as any).queries?.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Filtro por severidad
+    if (filters.severity.length > 0) {
+      filtered = filtered.filter((report) =>
+        filters.severity.includes(report.severity)
+      )
+    }
+
+    // Filtro por estado
+    if (filters.status.length > 0) {
+      filtered = filtered.filter((report) =>
+        filters.status.includes(report.status)
+      )
+    }
+
+    // Filtro por aplicación
+    if (filters.application) {
+      filtered = filtered.filter(
+        (report) => (report.application as any)._id === filters.application
+      )
+    }
+
+    // Filtro por fecha
+    if (filters.dateFrom) {
+      filtered = filtered.filter(
+        (report) => new Date(report.createdAt) >= new Date(filters.dateFrom)
+      )
+    }
+
+    if (filters.dateTo) {
+      const dateTo = new Date(filters.dateTo)
+      dateTo.setHours(23, 59, 59, 999)
+      filtered = filtered.filter(
+        (report) => new Date(report.createdAt) <= dateTo
+      )
+    }
+
+    // Paginación
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const startIndex = (currentPage - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    const paginatedReports = filtered.slice(startIndex, endIndex)
+
+    return {
+      reports: paginatedReports,
+      totalItems: filtered.length,
+      totalPages
+    }
+  }, [bugReports, filters, currentPage, itemsPerPage])
+
+  // Resetear página cuando cambian los filtros
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters])
+
+  const handleFilterChange = (newFilters: FilterValues) => {
+    setFilters(newFilters)
+  }
+
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      severity: [],
+      status: [],
+      application: '',
+      dateFrom: '',
+      dateTo: ''
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -184,6 +286,12 @@ export default function AdminDashboard() {
           >
             Usuarios QA
           </button>
+          <button
+            className={`tab ${activeTab === 'statistics' ? 'active' : ''}`}
+            onClick={() => setActiveTab('statistics')}
+          >
+            Estadísticas
+          </button>
         </div>
 
         {activeTab === 'applications' && (
@@ -230,6 +338,16 @@ export default function AdminDashboard() {
           <div className="tab-content">
             <div className="card">
               <h2>Todos los Reportes de Bugs</h2>
+
+              {/* Filtros */}
+              <BugReportFilters
+                filters={filters}
+                applications={applications}
+                onFilterChange={handleFilterChange}
+                onClear={handleClearFilters}
+                resultsCount={filteredAndPaginatedReports.totalItems}
+              />
+
               <table className="table">
                 <thead>
                   <tr>
@@ -242,7 +360,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {bugReports.map((report) => (
+                  {filteredAndPaginatedReports.reports.map((report) => (
                     <tr key={report._id}>
                       <td>{report.title}</td>
                       <td>{report.application.name} v{report.application.version}</td>
@@ -254,10 +372,18 @@ export default function AdminDashboard() {
                         <span className={`badge badge-${report.status}`}>{report.status}</span>
                       </td>
                       <td>
+                        <button
+                          onClick={() => setSelectedReportId(report._id)}
+                          className="btn btn-primary btn-sm"
+                          style={{ marginRight: '0.5rem' }}
+                        >
+                          Ver Detalles
+                        </button>
                         <select
                           value={report.status}
                           onChange={(e) => updateBugStatus(report._id, e.target.value)}
                           className="form-control"
+                          style={{ display: 'inline-block', width: 'auto' }}
                         >
                           <option value="open">Abierto</option>
                           <option value="in-progress">En Progreso</option>
@@ -269,6 +395,18 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+
+              {/* Paginación */}
+              {filteredAndPaginatedReports.totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={filteredAndPaginatedReports.totalPages}
+                  totalItems={filteredAndPaginatedReports.totalItems}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+              )}
             </div>
           </div>
         )}
@@ -323,6 +461,13 @@ export default function AdminDashboard() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Dashboard de Estadísticas */}
+        {activeTab === 'statistics' && (
+          <div className="tab-content">
+            <BugReportStats />
           </div>
         )}
 
@@ -494,6 +639,15 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Modal de Detalles del Reporte */}
+        {selectedReportId && (
+          <BugReportDetailModal
+            reportId={selectedReportId}
+            onClose={() => setSelectedReportId(null)}
+            onUpdate={loadBugReports}
+          />
         )}
       </div>
     </div>

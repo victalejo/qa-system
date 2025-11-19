@@ -1,5 +1,17 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IComment {
+  user: mongoose.Types.ObjectId;
+  text: string;
+  createdAt: Date;
+}
+
+export interface IStatusHistory {
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  changedBy: mongoose.Types.ObjectId;
+  changedAt: Date;
+}
+
 export interface IBugReport extends Document {
   title: string;
   description: string;
@@ -12,6 +24,10 @@ export interface IBugReport extends Document {
   reportedBy: mongoose.Types.ObjectId;
   screenshots?: string[];
   environment: string;
+  consoleErrors?: string;
+  queries?: string;
+  comments?: IComment[];
+  statusHistory?: IStatusHistory[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,6 +80,45 @@ const bugReportSchema = new Schema<IBugReport>({
     type: String,
     required: true
   },
+  consoleErrors: {
+    type: String,
+    required: false
+  },
+  queries: {
+    type: String,
+    required: false
+  },
+  comments: [{
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    text: {
+      type: String,
+      required: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['open', 'in-progress', 'resolved', 'closed'],
+      required: true
+    },
+    changedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now
