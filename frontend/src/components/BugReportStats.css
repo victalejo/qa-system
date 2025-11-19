@@ -160,6 +160,10 @@
   background: linear-gradient(135deg, #28a745, #1e7e34);
 }
 
+.stat-card.pending-test .stat-icon {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
 .stat-card.closed .stat-icon {
   background: linear-gradient(135deg, #6c757d, #545b62);
 }

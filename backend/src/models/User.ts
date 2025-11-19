@@ -5,6 +5,11 @@ export interface IUser extends Document {
   password: string;
   name: string;
   role: 'admin' | 'qa';
+  whatsappNumber?: string;
+  notificationPreferences?: {
+    email: boolean;
+    whatsapp: boolean;
+  };
   createdAt: Date;
 }
 
@@ -28,6 +33,21 @@ const userSchema = new Schema<IUser>({
     type: String,
     enum: ['admin', 'qa'],
     required: true
+  },
+  whatsappNumber: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  notificationPreferences: {
+    email: {
+      type: Boolean,
+      default: true
+    },
+    whatsapp: {
+      type: Boolean,
+      default: true
+    }
   },
   createdAt: {
     type: Date,

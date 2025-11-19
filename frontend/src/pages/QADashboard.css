@@ -29,3 +29,30 @@
   font-size: 14px;
   opacity: 0.9;
 }
+
+.card-pending-test {
+  border: 3px solid #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.pending-test-notice {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.pending-test-notice p {
+  margin: 0;
+}
+
+.pending-test-row {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+.pending-test-row:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+}

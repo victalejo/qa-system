@@ -136,6 +136,7 @@ const BugReportFilters: React.FC<BugReportFiltersProps> = ({
               { value: 'open', label: 'Abierto' },
               { value: 'in-progress', label: 'En Progreso' },
               { value: 'resolved', label: 'Resuelto' },
+              { value: 'pending-test', label: 'Por Testear' },
               { value: 'closed', label: 'Cerrado' }
             ].map((status) => (
               <button

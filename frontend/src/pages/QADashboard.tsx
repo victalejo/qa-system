@@ -89,6 +89,38 @@ export default function QADashboard() {
           </div>
         </div>
 
+        {/* Bugs Por Testear */}
+        {bugReports.filter(report => report.status === 'pending-test').length > 0 && (
+          <div className="card card-pending-test">
+            <div className="card-header">
+              <h2>🧪 Bugs Por Testear ({bugReports.filter(report => report.status === 'pending-test').length})</h2>
+            </div>
+            <div className="pending-test-notice">
+              <p>Los siguientes bugs han sido marcados como solucionados y requieren tu validación:</p>
+            </div>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th>Severidad</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bugReports.filter(report => report.status === 'pending-test').map((report) => (
+                  <tr key={report._id} className="pending-test-row">
+                    <td><strong>{report.title}</strong></td>
+                    <td>
+                      <span className={`badge badge-${report.severity}`}>{report.severity}</span>
+                    </td>
+                    <td>{new Date(report.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         <div className="card">
           <h2>Mis Reportes de Bugs</h2>
           <table className="table">

@@ -388,6 +388,7 @@ export default function AdminDashboard() {
                           <option value="open">Abierto</option>
                           <option value="in-progress">En Progreso</option>
                           <option value="resolved">Resuelto</option>
+                          <option value="pending-test">Por Testear</option>
                           <option value="closed">Cerrado</option>
                         </select>
                       </td>

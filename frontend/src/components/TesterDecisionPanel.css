@@ -1,0 +1,192 @@
+.tester-decision-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.decision-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.decision-subtitle {
+  text-align: center;
+  margin: 0 0 24px 0;
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+.decision-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.decision-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.decision-option:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateX(4px);
+}
+
+.decision-option.selected {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: white;
+  border-width: 3px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.decision-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.decision-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.decision-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.decision-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.decision-description {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.decision-comment {
+  margin-bottom: 16px;
+}
+
+.decision-comment label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.decision-comment .required {
+  color: #ff6b6b;
+}
+
+.decision-comment textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.decision-comment textarea::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.decision-comment textarea:focus {
+  outline: none;
+  border-color: white;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.decision-comment textarea.error {
+  border-color: #ff6b6b;
+}
+
+.decision-comment textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.decision-error {
+  background: #ff6b6b;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.decision-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-submit-decision {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-submit-decision:hover:not(:disabled) {
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-submit-decision:disabled {
+  background: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .tester-decision-panel {
+    padding: 16px;
+  }
+
+  .decision-title {
+    font-size: 1.25rem;
+  }
+
+  .decision-option {
+    padding: 12px;
+  }
+
+  .decision-icon {
+    font-size: 1.5rem;
+  }
+
+  .decision-label {
+    font-size: 1rem;
+  }
+}

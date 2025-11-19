@@ -1,6 +1,7 @@
 import express from 'express';
 import BugReport from '../models/BugReport';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import notificationService from '../services/notificationService';
 
 const router = express.Router();
 
@@ -76,11 +77,25 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { status } = req.body;
 
+    // Validar que solo los admins puedan cambiar el estado
+    if (req.userRole !== 'admin') {
+      return res.status(403).json({ message: 'No autorizado. Solo los administradores pueden cambiar el estado.' });
+    }
+
     const report = await BugReport.findById(req.params.id);
 
     if (!report) {
       return res.status(404).json({ message: 'Reporte no encontrado' });
     }
+
+    // Validar transición a 'pending-test' solo desde 'resolved'
+    if (status === 'pending-test' && report.status !== 'resolved') {
+      return res.status(400).json({
+        message: 'Solo se puede pasar a "Por Testear" desde el estado "Resuelto"'
+      });
+    }
+
+    const previousStatus = report.status;
 
     // Agregar al historial de cambios de estado
     report.status = status;
@@ -96,9 +111,98 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res) => {
     await report.populate('reportedBy', 'name email');
     await report.populate('statusHistory.changedBy', 'name email');
 
+    // Enviar notificaciones si el bug pasó a 'pending-test'
+    if (status === 'pending-test') {
+      notificationService.notifyTesterBugPendingTest(report._id.toString());
+    }
+
     res.json(report);
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar estado', error });
+  }
+});
+
+// Registrar decisión del tester sobre un bug en estado 'pending-test'
+router.patch('/:id/tester-decision', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { decision, comment } = req.body;
+
+    // Validar que exista la decisión y el comentario
+    if (!decision || !comment || comment.trim() === '') {
+      return res.status(400).json({
+        message: 'La decisión y el comentario son obligatorios'
+      });
+    }
+
+    // Validar que la decisión sea válida
+    if (!['fixed', 'regression', 'not-fixed'].includes(decision)) {
+      return res.status(400).json({
+        message: 'Decisión inválida. Debe ser: fixed, regression o not-fixed'
+      });
+    }
+
+    const report = await BugReport.findById(req.params.id).populate('reportedBy');
+
+    if (!report) {
+      return res.status(404).json({ message: 'Reporte no encontrado' });
+    }
+
+    // Validar que el bug esté en estado 'pending-test'
+    if (report.status !== 'pending-test') {
+      return res.status(400).json({
+        message: 'Solo se puede tomar una decisión sobre bugs en estado "Por Testear"'
+      });
+    }
+
+    // Validar que el usuario actual sea el tester que reportó el bug
+    if (report.reportedBy._id.toString() !== req.userId) {
+      return res.status(403).json({
+        message: 'No autorizado. Solo el tester que reportó este bug puede tomar la decisión.'
+      });
+    }
+
+    // Guardar la decisión del tester
+    report.testerDecision = {
+      decision,
+      comment: comment.trim(),
+      decidedAt: new Date()
+    };
+
+    // Cambiar el estado según la decisión
+    let newStatus: 'open' | 'closed' = 'open';
+    if (decision === 'fixed') {
+      newStatus = 'closed';
+    } else {
+      newStatus = 'open';
+      // Marcar como regresión si aplica
+      if (decision === 'regression') {
+        report.isRegression = true;
+      }
+    }
+
+    report.status = newStatus;
+    report.statusHistory = report.statusHistory || [];
+    report.statusHistory.push({
+      status: newStatus,
+      changedBy: req.userId,
+      changedAt: new Date()
+    } as any);
+
+    await report.save();
+    await report.populate('application', 'name version');
+    await report.populate('reportedBy', 'name email');
+    await report.populate('statusHistory.changedBy', 'name email');
+
+    // Notificar a los admins sobre la decisión del tester
+    notificationService.notifyAdminsTesterDecision(
+      report._id.toString(),
+      decision,
+      comment.trim()
+    );
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al procesar decisión del tester', error });
   }
 });
 
@@ -176,6 +280,7 @@ router.get('/stats/summary', authMiddleware, async (req, res) => {
     const inProgressReports = await BugReport.countDocuments({ status: 'in-progress' });
     const resolvedReports = await BugReport.countDocuments({ status: 'resolved' });
     const closedReports = await BugReport.countDocuments({ status: 'closed' });
+    const pendingTestReports = await BugReport.countDocuments({ status: 'pending-test' });
 
     const bySeverity = await BugReport.aggregate([
       {
@@ -226,7 +331,8 @@ router.get('/stats/summary', authMiddleware, async (req, res) => {
         open: openReports,
         inProgress: inProgressReports,
         resolved: resolvedReports,
-        closed: closedReports
+        closed: closedReports,
+        pendingTest: pendingTestReports
       },
       bySeverity: bySeverity.reduce((acc, item) => {
         acc[item._id] = item.count;

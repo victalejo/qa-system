@@ -37,6 +37,7 @@ interface Stats {
     inProgress: number;
     resolved: number;
     closed: number;
+    pendingTest: number;
   };
   bySeverity: {
     low?: number;
@@ -136,7 +137,7 @@ const BugReportStats: React.FC = () => {
 
   // Datos para gráfico de estado (dona)
   const statusData = {
-    labels: ['Abiertos', 'En Progreso', 'Resueltos', 'Cerrados'],
+    labels: ['Abiertos', 'En Progreso', 'Resueltos', 'Por Testear', 'Cerrados'],
     datasets: [
       {
         label: 'Bugs por Estado',
@@ -144,18 +145,21 @@ const BugReportStats: React.FC = () => {
           stats.byStatus.open,
           stats.byStatus.inProgress,
           stats.byStatus.resolved,
+          stats.byStatus.pendingTest,
           stats.byStatus.closed
         ],
         backgroundColor: [
           'rgba(13, 202, 240, 0.8)',
           'rgba(255, 193, 7, 0.8)',
           'rgba(40, 167, 69, 0.8)',
+          'rgba(138, 43, 226, 0.8)',
           'rgba(108, 117, 125, 0.8)'
         ],
         borderColor: [
           'rgb(13, 202, 240)',
           'rgb(255, 193, 7)',
           'rgb(40, 167, 69)',
+          'rgb(138, 43, 226)',
           'rgb(108, 117, 125)'
         ],
         borderWidth: 3
@@ -456,6 +460,19 @@ const BugReportStats: React.FC = () => {
           <div className="stat-content">
             <h3>Resueltos</h3>
             <p className="stat-value">{stats.byStatus.resolved}</p>
+          </div>
+        </div>
+
+        <div className="stat-card pending-test">
+          <div className="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+          </div>
+          <div className="stat-content">
+            <h3>Por Testear</h3>
+            <p className="stat-value">{stats.byStatus.pendingTest}</p>
           </div>
         </div>
 

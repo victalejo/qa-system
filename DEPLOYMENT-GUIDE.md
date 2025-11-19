@@ -52,6 +52,7 @@ Este script realiza:
 - ✅ Configura variables de entorno (NODE_ENV, JWT_SECRET)
 - ✅ Configura el dominio `qa.s.iaportafolio.com`
 - ✅ Instala el plugin de Let's Encrypt
+- ✅ Configura almacenamiento persistente para uploads
 
 **⚠️ Importante**: Asegúrate de que el dominio `qa.s.iaportafolio.com` apunte a la IP `62.146.226.24` antes de continuar.
 
@@ -107,7 +108,42 @@ ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku letsencrypt:enable qa-system'
 ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku letsencrypt:auto-renew qa-system'
 ```
 
-### Paso 7: Verificar el Deployment
+### Paso 7: Verificar Almacenamiento Persistente
+
+El sistema almacena screenshots subidos por los usuarios. Es **crítico** verificar que el almacenamiento persistente esté configurado correctamente para evitar pérdida de datos en futuros deployments.
+
+**Verificar que el volumen esté montado**:
+
+```bash
+ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku storage:report qa-system'
+```
+
+Deberías ver:
+
+```text
+=====> qa-system storage information
+       Storage deploy mounts:         -v /var/lib/dokku/data/storage/qa-system/uploads:/app/uploads
+       Storage run mounts:            -v /var/lib/dokku/data/storage/qa-system/uploads:/app/uploads
+```
+
+**Verificar permisos dentro del contenedor**:
+
+```bash
+ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku enter qa-system web ls -la /app/uploads'
+```
+
+Deberías ver que el directorio pertenece al usuario `nodejs` (uid 1001).
+
+**⚠️ IMPORTANTE**: Si el almacenamiento persistente NO está configurado, todos los screenshots se perderán en cada deployment. El script `setup-dokku.sh` ya configura esto automáticamente, pero si instalaste manualmente, asegúrate de ejecutar:
+
+```bash
+ssh -i ~/.ssh/aurora root@62.146.226.24 'mkdir -p /var/lib/dokku/data/storage/qa-system/uploads && \
+  chown -R 1001:1001 /var/lib/dokku/data/storage/qa-system/uploads && \
+  dokku storage:mount qa-system /var/lib/dokku/data/storage/qa-system/uploads:/app/uploads && \
+  dokku ps:rebuild qa-system'
+```
+
+### Paso 8: Verificar el Deployment
 
 1. **Verificar que la aplicación está corriendo**:
 
@@ -263,6 +299,32 @@ ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku ps:scale qa-system web=2'
    ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku letsencrypt:enable qa-system'
    ```
 
+### Las imágenes/screenshots desaparecen después del deployment ⚠️
+
+**Causa**: El almacenamiento persistente no está configurado correctamente.
+
+**Solución**:
+
+1. Verificar si el volumen está montado:
+   ```bash
+   ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku storage:report qa-system'
+   ```
+
+2. Si no hay volúmenes montados, configurar el almacenamiento persistente:
+   ```bash
+   ssh -i ~/.ssh/aurora root@62.146.226.24 'mkdir -p /var/lib/dokku/data/storage/qa-system/uploads && \
+     chown -R 1001:1001 /var/lib/dokku/data/storage/qa-system/uploads && \
+     dokku storage:mount qa-system /var/lib/dokku/data/storage/qa-system/uploads:/app/uploads && \
+     dokku ps:rebuild qa-system'
+   ```
+
+3. Verificar que funciona:
+   - Sube un screenshot de prueba a través de la aplicación
+   - Haz un nuevo deployment: `git push dokku main`
+   - Verifica que el screenshot sigue accesible
+
+**Nota**: Las imágenes ya eliminadas NO se pueden recuperar. Solo los nuevos uploads estarán protegidos.
+
 ## 📊 Arquitectura del Deployment
 
 ```
@@ -278,26 +340,37 @@ ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku ps:scale qa-system web=2'
          └────────┬────────┘
                   │
                   ▼
-       ┌──────────────────┐
-       │  Docker Container │
-       │   (qa-system)     │
-       │                   │
-       │  ┌─────────────┐  │
-       │  │  Node.js    │  │
-       │  │  Express    │  │
-       │  │             │  │
-       │  │ - API (/api)│  │
-       │  │ - Frontend  │  │
-       │  │   (static)  │  │
-       │  └─────────────┘  │
-       └────────┬──────────┘
-                │
-                ▼
-       ┌──────────────────┐
-       │  MongoDB         │
-       │  Container       │
-       │  (qa-db)         │
-       └──────────────────┘
+       ┌──────────────────────────┐
+       │  Docker Container        │
+       │   (qa-system)            │
+       │                          │
+       │  ┌─────────────┐         │
+       │  │  Node.js    │         │
+       │  │  Express    │         │
+       │  │             │         │
+       │  │ - API (/api)│         │
+       │  │ - Frontend  │         │
+       │  │   (static)  │         │
+       │  └─────────────┘         │
+       │         │                │
+       │         │ /app/uploads   │
+       └─────────┼────────────────┘
+                 │ (mount)
+                 ▼
+       ┌──────────────────────────┐
+       │ Persistent Storage       │
+       │ /var/lib/dokku/data/     │
+       │ storage/qa-system/       │
+       │ uploads/                 │
+       │ (Host - survives deploys)│
+       └──────────────────────────┘
+                 │
+                 │
+       ┌─────────┴─────────┐
+       │  MongoDB          │
+       │  Container        │
+       │  (qa-db)          │
+       └───────────────────┘
 ```
 
 ## 📝 Variables de Entorno Configuradas
@@ -319,10 +392,12 @@ ssh -i ~/.ssh/aurora root@62.146.226.24 'dokku ps:scale qa-system web=2'
 - [ ] Remote de Dokku agregado
 - [ ] Primer deployment ejecutado (`git push dokku main`)
 - [ ] SSL activado con Let's Encrypt
+- [ ] **Almacenamiento persistente configurado y verificado** ⚠️ CRÍTICO
 - [ ] Health check funcionando (`/health`)
 - [ ] Aplicación accesible en https://qa.s.iaportafolio.com
 - [ ] Frontend cargando correctamente
 - [ ] API respondiendo en `/api/*`
+- [ ] Test de upload de screenshot funcional (verificar persistencia tras redeploy)
 
 ## 📚 Recursos Adicionales
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import api from '../lib/api';
 import ImageGallery from './ImageGallery';
 import CommentSection from './CommentSection';
+import TesterDecisionPanel from './TesterDecisionPanel';
+import { useAuthStore } from '../store/authStore';
 import './BugReportDetailModal.css';
 
 interface BugReport {
@@ -12,12 +14,13 @@ interface BugReport {
   expectedBehavior: string;
   actualBehavior: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'pending-test';
   application: {
     name: string;
     version: string;
   };
   reportedBy: {
+    _id: string;
     name: string;
     email: string;
   };
@@ -57,6 +60,7 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
   onClose,
   onUpdate
 }) => {
+  const currentUser = useAuthStore((state) => state.user);
   const [report, setReport] = useState<BugReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -121,7 +125,8 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
       open: 'Abierto',
       'in-progress': 'En Progreso',
       resolved: 'Resuelto',
-      closed: 'Cerrado'
+      closed: 'Cerrado',
+      'pending-test': 'Por Testear'
     };
     return labels[status] || status;
   };
@@ -299,17 +304,31 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
                 id="status-select"
                 value={report.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                disabled={updatingStatus}
+                disabled={updatingStatus || currentUser?.role !== 'admin'}
                 className="status-select"
               >
                 <option value="open">Abierto</option>
                 <option value="in-progress">En Progreso</option>
                 <option value="resolved">Resuelto</option>
+                {currentUser?.role === 'admin' && <option value="pending-test">Por Testear</option>}
                 <option value="closed">Cerrado</option>
               </select>
               {updatingStatus && <span className="status-updating">Actualizando...</span>}
             </div>
           </section>
+
+          {/* Panel de Decisión del Tester */}
+          {report.status === 'pending-test' && currentUser?.id === report.reportedBy._id && (
+            <section className="detail-section">
+              <TesterDecisionPanel
+                bugId={report._id}
+                onDecisionMade={() => {
+                  loadReport();
+                  if (onUpdate) onUpdate();
+                }}
+              />
+            </section>
+          )}
 
           {/* Historial de Estados */}
           {report.statusHistory && report.statusHistory.length > 0 && (

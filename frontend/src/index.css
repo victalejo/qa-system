@@ -175,6 +175,12 @@ textarea.form-control {
   color: #0f5132;
 }
 
+.badge-pending-test {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+}
+
 .badge-closed {
   background-color: #6c757d;
   color: white;

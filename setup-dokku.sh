@@ -91,6 +91,18 @@ else
 fi
 echo ""
 
+echo "💾 Configurando almacenamiento persistente para uploads..."
+# Crear directorio de almacenamiento persistente en el host
+STORAGE_DIR="/var/lib/dokku/data/storage/$APP_NAME/uploads"
+mkdir -p "$STORAGE_DIR"
+# Configurar permisos para el usuario nodejs (uid 1001 definido en Dockerfile)
+chown -R 1001:1001 "$STORAGE_DIR"
+# Montar el volumen persistente
+dokku storage:mount "$APP_NAME" "$STORAGE_DIR:/app/uploads"
+echo "✅ Almacenamiento persistente configurado en: $STORAGE_DIR"
+echo "   Montado en el contenedor: /app/uploads"
+echo ""
+
 echo "🔒 Configurando SSL con Let's Encrypt..."
 echo "⚠️  Nota: Esto requiere que el dominio '$DOMAIN' apunte a este servidor"
 dokku letsencrypt:set "$APP_NAME" email admin@iaportafolio.com

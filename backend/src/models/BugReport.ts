@@ -7,9 +7,15 @@ export interface IComment {
 }
 
 export interface IStatusHistory {
-  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'pending-test';
   changedBy: mongoose.Types.ObjectId;
   changedAt: Date;
+}
+
+export interface ITesterDecision {
+  decision: 'fixed' | 'regression' | 'not-fixed';
+  comment: string;
+  decidedAt: Date;
 }
 
 export interface IBugReport extends Document {
@@ -19,7 +25,7 @@ export interface IBugReport extends Document {
   expectedBehavior: string;
   actualBehavior: string;
   severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed' | 'pending-test';
   application: mongoose.Types.ObjectId;
   reportedBy: mongoose.Types.ObjectId;
   screenshots?: string[];
@@ -28,6 +34,8 @@ export interface IBugReport extends Document {
   queries?: string;
   comments?: IComment[];
   statusHistory?: IStatusHistory[];
+  testerDecision?: ITesterDecision;
+  isRegression?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,7 +68,7 @@ const bugReportSchema = new Schema<IBugReport>({
   },
   status: {
     type: String,
-    enum: ['open', 'in-progress', 'resolved', 'closed'],
+    enum: ['open', 'in-progress', 'resolved', 'closed', 'pending-test'],
     default: 'open'
   },
   application: {
@@ -106,7 +114,7 @@ const bugReportSchema = new Schema<IBugReport>({
   statusHistory: [{
     status: {
       type: String,
-      enum: ['open', 'in-progress', 'resolved', 'closed'],
+      enum: ['open', 'in-progress', 'resolved', 'closed', 'pending-test'],
       required: true
     },
     changedBy: {
@@ -119,6 +127,25 @@ const bugReportSchema = new Schema<IBugReport>({
       default: Date.now
     }
   }],
+  testerDecision: {
+    decision: {
+      type: String,
+      enum: ['fixed', 'regression', 'not-fixed'],
+      required: false
+    },
+    comment: {
+      type: String,
+      required: false
+    },
+    decidedAt: {
+      type: Date,
+      required: false
+    }
+  },
+  isRegression: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
