@@ -267,7 +267,7 @@ const BugReportStats: React.FC = () => {
           padding: 20,
           font: {
             size: 13,
-            weight: '500' as const
+            weight: 'normal' as const
           },
           usePointStyle: true,
           pointStyle: 'circle'
@@ -337,7 +337,7 @@ const BugReportStats: React.FC = () => {
         ticks: {
           font: {
             size: 12,
-            weight: '500' as const
+            weight: 'normal' as const
           }
         },
         grid: {
