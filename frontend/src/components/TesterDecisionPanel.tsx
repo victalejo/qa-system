@@ -22,14 +22,14 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
     },
     {
       value: 'regression' as const,
-      label: 'Provocó Regresión',
-      icon: ' ',
+      label: 'Provocï¿½ Regresiï¿½n',
+      icon: 'ï¿½',
       color: 'warning',
-      description: 'La solución causó nuevos problemas'
+      description: 'La soluciï¿½n causï¿½ nuevos problemas'
     },
     {
       value: 'not-fixed' as const,
-      label: 'No se Solucionó',
+      label: 'No se Solucionï¿½',
       icon: 'L',
       color: 'danger',
       description: 'El bug persiste'
@@ -38,7 +38,7 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
 
   const handleSubmit = async () => {
     if (!selectedDecision) {
-      setError('Por favor, selecciona una decisión');
+      setError('Por favor, selecciona una decisiï¿½n');
       return;
     }
 
@@ -66,12 +66,12 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Error al enviar la decisión');
+        throw new Error(data.message || 'Error al enviar la decisiï¿½n');
       }
 
       onDecisionMade();
     } catch (err: any) {
-      setError(err.message || 'Error al enviar la decisión');
+      setError(err.message || 'Error al enviar la decisiï¿½n');
     } finally {
       setIsSubmitting(false);
     }
@@ -79,9 +79,9 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
 
   return (
     <div className="tester-decision-panel">
-      <h3 className="decision-title">>ê Evaluación del Bug</h3>
+      <h3 className="decision-title">EvaluaciÃ³n del Bug</h3>
       <p className="decision-subtitle">
-        Por favor, evalúa el bug y selecciona la opción que mejor describa el resultado de tus pruebas:
+        Por favor, evalÃºa el bug y selecciona la opciÃ³n que mejor describa el resultado de tus pruebas:
       </p>
 
       <div className="decision-options">
@@ -124,7 +124,7 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
           onClick={handleSubmit}
           disabled={isSubmitting || !selectedDecision || !comment.trim()}
         >
-          {isSubmitting ? 'Enviando...' : 'Enviar Evaluación'}
+          {isSubmitting ? 'Enviando...' : 'Enviar Evaluaciï¿½n'}
         </button>
       </div>
     </div>
