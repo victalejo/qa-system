@@ -8,11 +8,16 @@ const router = express.Router();
 // Registro
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, role } = req.body;
+    const { email, password, name, role, whatsappNumber } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'El usuario ya existe' });
+    }
+
+    // Validar whatsappNumber si el rol es 'qa'
+    if ((role === 'qa' || !role) && !whatsappNumber) {
+      return res.status(400).json({ message: 'El número de WhatsApp es obligatorio para usuarios QA' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,7 +26,12 @@ router.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
       name,
-      role: role || 'qa'
+      role: role || 'qa',
+      whatsappNumber,
+      notificationPreferences: {
+        email: true,
+        whatsapp: true
+      }
     });
 
     await user.save();

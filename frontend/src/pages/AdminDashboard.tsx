@@ -66,6 +66,7 @@ export default function AdminDashboard() {
     name: '',
     email: '',
     password: '',
+    whatsappNumber: '',
   })
 
   useEffect(() => {
@@ -223,7 +224,7 @@ export default function AdminDashboard() {
     try {
       await api.post('/auth/register', { ...qaFormData, role: 'qa' })
       setShowQAModal(false)
-      setQAFormData({ name: '', email: '', password: '' })
+      setQAFormData({ name: '', email: '', password: '', whatsappNumber: '' })
       loadQAUsers()
       alert('Usuario QA registrado exitosamente')
     } catch (error: any) {
@@ -579,6 +580,19 @@ export default function AdminDashboard() {
                     onChange={(e) => setQAFormData({ ...qaFormData, email: e.target.value })}
                     required
                   />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Número de WhatsApp</label>
+                  <input
+                    type="tel"
+                    className="form-control"
+                    placeholder="573001234567"
+                    value={qaFormData.whatsappNumber}
+                    onChange={(e) => setQAFormData({ ...qaFormData, whatsappNumber: e.target.value })}
+                    required
+                  />
+                  <small className="form-text">Formato: código país + número (ej: 573001234567)</small>
                 </div>
 
                 <div className="form-group">
