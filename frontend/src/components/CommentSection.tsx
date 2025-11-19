@@ -79,11 +79,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
           {comments.map((comment, index) => (
             <div key={comment._id || index} className="comment-item">
               <div className="comment-avatar">
-                {comment.user.name.charAt(0).toUpperCase()}
+                {comment.user?.name?.charAt(0)?.toUpperCase() || '?'}
               </div>
               <div className="comment-content">
                 <div className="comment-header">
-                  <span className="comment-author">{comment.user.name}</span>
+                  <span className="comment-author">{comment.user?.name || 'Usuario desconocido'}</span>
                   <span className="comment-date">{formatDate(comment.createdAt)}</span>
                 </div>
                 <p className="comment-text">{comment.text}</p>

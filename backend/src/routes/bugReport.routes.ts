@@ -14,6 +14,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res) => {
     const reports = await BugReport.find(query)
       .populate('application', 'name version')
       .populate('reportedBy', 'name email')
+      .populate('statusHistory.changedBy', 'name email')
       .sort({ createdAt: -1 });
 
     res.json(reports);
@@ -106,6 +107,7 @@ router.get('/application/:applicationId', authMiddleware, async (req, res) => {
   try {
     const reports = await BugReport.find({ application: req.params.applicationId })
       .populate('reportedBy', 'name email')
+      .populate('statusHistory.changedBy', 'name email')
       .sort({ createdAt: -1 });
 
     res.json(reports);

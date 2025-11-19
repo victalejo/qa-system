@@ -323,7 +323,7 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
                       <span className={`timeline-status status-${history.status}`}>
                         {getStatusLabel(history.status)}
                       </span>
-                      <span className="timeline-user">{history.changedBy.name}</span>
+                      <span className="timeline-user">{history.changedBy?.name || 'Usuario desconocido'}</span>
                       <span className="timeline-date">{formatDate(history.changedAt)}</span>
                     </div>
                   </div>
