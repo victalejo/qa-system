@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
 import api from '../lib/api'
 import BugReportWizard from '../components/BugReportWizard'
+import NotificationPreferences from '../components/NotificationPreferences'
 import './QADashboard.css'
 
 interface Application {
@@ -26,6 +27,7 @@ export default function QADashboard() {
   const [applications, setApplications] = useState<Application[]>([])
   const [bugReports, setBugReports] = useState<BugReport[]>([])
   const [showWizard, setShowWizard] = useState(false)
+  const [showPreferences, setShowPreferences] = useState(false)
 
   useEffect(() => {
     loadMyApplications()
@@ -60,6 +62,9 @@ export default function QADashboard() {
         <h1>Panel QA</h1>
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
+          <button onClick={() => setShowPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
+            Notificaciones
+          </button>
           <button onClick={logout} className="btn btn-secondary">
             Cerrar Sesión
           </button>
@@ -154,6 +159,12 @@ export default function QADashboard() {
             applications={applications}
             onClose={() => setShowWizard(false)}
             onSuccess={handleWizardSuccess}
+          />
+        )}
+
+        {showPreferences && (
+          <NotificationPreferences
+            onClose={() => setShowPreferences(false)}
           />
         )}
       </div>

@@ -27,6 +27,51 @@ router.get('/my-applications', authMiddleware, async (req: AuthRequest, res) => 
   }
 });
 
+// Obtener perfil del usuario actual
+router.get('/profile', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const user = await User.findById(req.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener perfil', error });
+  }
+});
+
+// Actualizar preferencias de notificación
+router.patch('/preferences', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const { email, whatsapp, whatsappNumber } = req.body;
+
+    const updateData: any = {
+      notificationPreferences: {
+        email: email !== undefined ? email : true,
+        whatsapp: whatsapp !== undefined ? whatsapp : true
+      }
+    };
+
+    if (whatsappNumber !== undefined) {
+      updateData.whatsappNumber = whatsappNumber;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.json({ message: 'Preferencias actualizadas', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar preferencias', error });
+  }
+});
+
 // Eliminar un usuario QA (solo admin)
 router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
   try {
