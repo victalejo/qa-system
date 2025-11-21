@@ -1,6 +1,8 @@
 import express from 'express';
 import Application from '../models/Application';
+import VersionHistory from '../models/VersionHistory';
 import { authMiddleware, adminOnly } from '../middleware/auth';
+import notificationService from '../services/notificationService';
 
 const router = express.Router();
 
@@ -67,6 +69,69 @@ router.delete('/:id', authMiddleware, adminOnly, async (req, res) => {
     res.json({ message: 'Aplicación eliminada' });
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar aplicación', error });
+  }
+});
+
+// Actualizar versión de la aplicación (solo admin)
+router.patch('/:id/version', authMiddleware, adminOnly, async (req: any, res) => {
+  try {
+    const { version, changelog } = req.body;
+
+    if (!version || !changelog) {
+      return res.status(400).json({ message: 'Versión y changelog son requeridos' });
+    }
+
+    const application = await Application.findById(req.params.id);
+
+    if (!application) {
+      return res.status(404).json({ message: 'Aplicación no encontrada' });
+    }
+
+    const previousVersion = application.version;
+
+    // Crear registro en el historial de versiones
+    const versionHistory = new VersionHistory({
+      application: application._id,
+      version,
+      previousVersion,
+      changelog,
+      updatedBy: req.user.id
+    });
+
+    await versionHistory.save();
+
+    // Actualizar la versión de la aplicación
+    application.version = version;
+    await application.save();
+
+    // Notificar a los QAs asignados
+    await notificationService.notifyQAsVersionUpdate(
+      application._id.toString(),
+      previousVersion,
+      version,
+      changelog
+    );
+
+    res.json({
+      application,
+      versionHistory,
+      message: 'Versión actualizada y notificaciones enviadas'
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al actualizar versión', error });
+  }
+});
+
+// Obtener historial de versiones de una aplicación
+router.get('/:id/versions', authMiddleware, async (req, res) => {
+  try {
+    const versions = await VersionHistory.find({ application: req.params.id })
+      .populate('updatedBy', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.json(versions);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener historial de versiones', error });
   }
 });
 

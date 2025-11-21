@@ -169,11 +169,11 @@ const BugReportStats: React.FC = () => {
 
   // Datos para gráfico de aplicaciones
   const appsData = {
-    labels: stats.topApplications.map(app => `${app.name} v${app.version}`),
+    labels: stats.topApplications.filter(app => app).map(app => `${app.name} v${app.version}`),
     datasets: [
       {
         label: 'Cantidad de Bugs',
-        data: stats.topApplications.map(app => app.count),
+        data: stats.topApplications.filter(app => app).map(app => app.count),
         backgroundColor: 'rgba(74, 144, 226, 0.8)',
         borderColor: 'rgb(74, 144, 226)',
         borderWidth: 2,

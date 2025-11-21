@@ -18,8 +18,8 @@ class WhatsAppService {
 
   async sendMessage(phoneNumber: string, message: string): Promise<boolean> {
     try {
-      // Formatear el número de teléfono al formato de WhatsApp
-      // Asume que el número viene sin espacios ni caracteres especiales
+      // Formatear el nï¿½mero de telï¿½fono al formato de WhatsApp
+      // Asume que el nï¿½mero viene sin espacios ni caracteres especiales
       const chatId = phoneNumber.includes('@c.us') ? phoneNumber : `${phoneNumber}@c.us`;
 
       const response = await axios.post(
@@ -57,19 +57,19 @@ class WhatsAppService {
 
 Hola *${testerName}*,
 
-Te notificamos que el siguiente bug ha sido marcado como *solucionado* y requiere tu validación:
+Te notificamos que el siguiente bug ha sido marcado como *solucionado* y requiere tu validaciï¿½n:
 
-=Ë *${bugTitle}*
-<” ID: ${bugId}
+=ï¿½ *${bugTitle}*
+<ï¿½ ID: ${bugId}
 
 Por favor, revisa el bug y selecciona una de las siguientes opciones:
  Completamente Solucionado
-  Provocó Regresión
-L No se Solucionó
+ï¿½ Provocï¿½ Regresiï¿½n
+L No se Solucionï¿½
 
 Ingresa al sistema para evaluar el bug.
 
-_Sistema de Gestión de QA_
+_Sistema de Gestiï¿½n de QA_
     `.trim();
 
     return this.sendMessage(phoneNumber, message);
@@ -86,28 +86,57 @@ _Sistema de Gestión de QA_
   ): Promise<boolean> {
     const decisionLabels = {
       'fixed': 'Completamente Solucionado ',
-      'regression': 'Provocó Regresión  ',
-      'not-fixed': 'No se Solucionó L'
+      'regression': 'Provocï¿½ Regresiï¿½n ï¿½',
+      'not-fixed': 'No se Solucionï¿½ L'
     };
 
     const message = `
-= *Decisión del Tester sobre Bug*
+= *Decisiï¿½n del Tester sobre Bug*
 
 Hola *${adminName}*,
 
 El tester *${testerName}* ha evaluado el siguiente bug:
 
-=Ë *${bugTitle}*
-<” ID: ${bugId}
+=ï¿½ *${bugTitle}*
+<ï¿½ ID: ${bugId}
 
-*Decisión:* ${decisionLabels[decision]}
+*Decisiï¿½n:* ${decisionLabels[decision]}
 
-=¬ *Comentario del Tester:*
+=ï¿½ *Comentario del Tester:*
 ${comment}
 
 Ingresa al sistema para ver los detalles completos.
 
-_Sistema de Gestión de QA_
+_Sistema de Gestiï¿½n de QA_
+    `.trim();
+
+    return this.sendMessage(phoneNumber, message);
+  }
+
+  async sendVersionUpdateNotification(
+    phoneNumber: string,
+    qaName: string,
+    appName: string,
+    previousVersion: string,
+    newVersion: string,
+    changelog: string
+  ): Promise<boolean> {
+    const message = `
+ğŸ”„ *Nueva VersiÃ³n Disponible*
+
+Hola *${qaName}*,
+
+La aplicaciÃ³n *${appName}* ha sido actualizada:
+
+ğŸ“¦ VersiÃ³n anterior: ${previousVersion}
+âœ… Nueva versiÃ³n: *${newVersion}*
+
+ğŸ“ *Notas de la versiÃ³n:*
+${changelog}
+
+Ingresa al sistema para mÃ¡s detalles.
+
+_Sistema de GestiÃ³n de QA_
     `.trim();
 
     return this.sendMessage(phoneNumber, message);

@@ -204,13 +204,13 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
               <div className="detail-item">
                 <span className="detail-label">Aplicación:</span>
                 <span className="detail-value">
-                  {report.application.name} v{report.application.version}
+                  {report.application?.name || 'N/A'} v{report.application?.version || '?'}
                 </span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Reportado por:</span>
                 <span className="detail-value">
-                  {report.reportedBy.name} ({report.reportedBy.email})
+                  {report.reportedBy?.name || 'Usuario desconocido'} ({report.reportedBy?.email || 'N/A'})
                 </span>
               </div>
               <div className="detail-item">

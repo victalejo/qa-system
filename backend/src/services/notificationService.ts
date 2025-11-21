@@ -2,10 +2,11 @@ import emailService from './emailService';
 import whatsappService from './whatsappService';
 import User from '../models/User';
 import BugReport from '../models/BugReport';
+import Application from '../models/Application';
 
 class NotificationService {
   /**
-   * Envía notificación al tester cuando un bug pasa a "pending-test"
+   * Envï¿½a notificaciï¿½n al tester cuando un bug pasa a "pending-test"
    */
   async notifyTesterBugPendingTest(bugId: string): Promise<void> {
     try {
@@ -23,7 +24,7 @@ class NotificationService {
 
       const preferences = tester.notificationPreferences || { email: true, whatsapp: true };
 
-      // Enviar email si está habilitado
+      // Enviar email si estï¿½ habilitado
       if (preferences.email && tester.email) {
         await emailService.sendBugPendingTestNotification(
           tester.email,
@@ -33,7 +34,7 @@ class NotificationService {
         );
       }
 
-      // Enviar WhatsApp si está habilitado y tiene número
+      // Enviar WhatsApp si estï¿½ habilitado y tiene nï¿½mero
       if (preferences.whatsapp && tester.whatsappNumber) {
         await whatsappService.sendBugPendingTestNotification(
           tester.whatsappNumber,
@@ -50,7 +51,7 @@ class NotificationService {
   }
 
   /**
-   * Envía notificación a todos los admins cuando el tester toma una decisión
+   * Envï¿½a notificaciï¿½n a todos los admins cuando el tester toma una decisiï¿½n
    */
   async notifyAdminsTesterDecision(
     bugId: string,
@@ -73,11 +74,11 @@ class NotificationService {
       // Obtener todos los admins
       const admins = await User.find({ role: 'admin' });
 
-      // Enviar notificación a cada admin
+      // Enviar notificaciï¿½n a cada admin
       for (const admin of admins) {
         const preferences = admin.notificationPreferences || { email: true, whatsapp: true };
 
-        // Enviar email si está habilitado
+        // Enviar email si estï¿½ habilitado
         if (preferences.email && admin.email) {
           await emailService.sendTesterDecisionNotification(
             admin.email,
@@ -90,7 +91,7 @@ class NotificationService {
           );
         }
 
-        // Enviar WhatsApp si está habilitado y tiene número
+        // Enviar WhatsApp si estï¿½ habilitado y tiene nï¿½mero
         if (preferences.whatsapp && admin.whatsappNumber) {
           await whatsappService.sendTesterDecisionNotification(
             admin.whatsappNumber,
@@ -107,6 +108,64 @@ class NotificationService {
       console.log(`Notifications sent to ${admins.length} admins for bug ${bugId}`);
     } catch (error) {
       console.error('Error sending admin notifications:', error);
+    }
+  }
+
+  /**
+   * Notifica a todos los QAs asignados cuando una aplicaciÃ³n se actualiza
+   */
+  async notifyQAsVersionUpdate(
+    applicationId: string,
+    previousVersion: string,
+    newVersion: string,
+    changelog: string
+  ): Promise<void> {
+    try {
+      const application = await Application.findById(applicationId).populate('assignedQAs');
+      if (!application) {
+        console.error('Application not found');
+        return;
+      }
+
+      const assignedQAs: any[] = application.assignedQAs || [];
+
+      if (assignedQAs.length === 0) {
+        console.log(`No QAs assigned to application ${application.name}`);
+        return;
+      }
+
+      // Enviar notificaciÃ³n a cada QA asignado
+      for (const qa of assignedQAs) {
+        const preferences = qa.notificationPreferences || { email: true, whatsapp: true };
+
+        // Enviar email si estÃ¡ habilitado
+        if (preferences.email && qa.email) {
+          await emailService.sendVersionUpdateNotification(
+            qa.email,
+            qa.name,
+            application.name,
+            previousVersion,
+            newVersion,
+            changelog
+          );
+        }
+
+        // Enviar WhatsApp si estÃ¡ habilitado y tiene nÃºmero
+        if (preferences.whatsapp && qa.whatsappNumber) {
+          await whatsappService.sendVersionUpdateNotification(
+            qa.whatsappNumber,
+            qa.name,
+            application.name,
+            previousVersion,
+            newVersion,
+            changelog
+          );
+        }
+      }
+
+      console.log(`Version update notifications sent to ${assignedQAs.length} QAs for ${application.name}`);
+    } catch (error) {
+      console.error('Error sending version update notifications:', error);
     }
   }
 }

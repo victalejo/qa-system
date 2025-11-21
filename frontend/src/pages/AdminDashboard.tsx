@@ -5,6 +5,8 @@ import BugReportDetailModal from '../components/BugReportDetailModal'
 import BugReportFilters, { FilterValues } from '../components/BugReportFilters'
 import Pagination from '../components/Pagination'
 import BugReportStats from '../components/BugReportStats'
+import UpdateVersionModal from '../components/UpdateVersionModal'
+import VersionHistoryModal from '../components/VersionHistoryModal'
 import './AdminDashboard.css'
 
 interface Application {
@@ -39,10 +41,13 @@ export default function AdminDashboard() {
   const [qaUsers, setQAUsers] = useState<QAUser[]>([])
   const [bugReports, setBugReports] = useState<BugReport[]>([])
   const [showModal, setShowModal] = useState(false)
+  const [editingApp, setEditingApp] = useState<Application | null>(null)
   const [showQAModal, setShowQAModal] = useState(false)
   const [showAppsModal, setShowAppsModal] = useState(false)
   const [selectedQAApps, setSelectedQAApps] = useState<Application[]>([])
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null)
+  const [versionApp, setVersionApp] = useState<Application | null>(null)
+  const [historyApp, setHistoryApp] = useState<Application | null>(null)
 
   // Estados para filtros y paginación
   const [filters, setFilters] = useState<FilterValues>({
@@ -190,13 +195,36 @@ export default function AdminDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await api.post('/applications', formData)
+      if (editingApp) {
+        await api.put(`/applications/${editingApp._id}`, formData)
+      } else {
+        await api.post('/applications', formData)
+      }
       setShowModal(false)
+      setEditingApp(null)
       setFormData({ name: '', description: '', version: '', platform: '', assignedQAs: [] })
       loadApplications()
     } catch (error) {
-      console.error('Error al crear aplicación', error)
+      console.error('Error al guardar aplicación', error)
     }
+  }
+
+  const handleEdit = (app: Application) => {
+    setEditingApp(app)
+    setFormData({
+      name: app.name,
+      description: app.description,
+      version: app.version,
+      platform: app.platform,
+      assignedQAs: app.assignedQAs.map((qa: any) => qa._id || qa),
+    })
+    setShowModal(true)
+  }
+
+  const handleNewApp = () => {
+    setEditingApp(null)
+    setFormData({ name: '', description: '', version: '', platform: '', assignedQAs: [] })
+    setShowModal(true)
   }
 
   const handleDelete = async (id: string) => {
@@ -300,7 +328,7 @@ export default function AdminDashboard() {
             <div className="card">
               <div className="card-header">
                 <h2>Gestión de Aplicaciones</h2>
-                <button onClick={() => setShowModal(true)} className="btn btn-primary">
+                <button onClick={handleNewApp} className="btn btn-primary">
                   Nueva Aplicación
                 </button>
               </div>
@@ -323,6 +351,15 @@ export default function AdminDashboard() {
                       <td>{app.platform}</td>
                       <td>{app.assignedQAs?.length || 0}</td>
                       <td>
+                        <button onClick={() => handleEdit(app)} className="btn btn-primary btn-sm" style={{ marginRight: '8px' }}>
+                          Editar
+                        </button>
+                        <button onClick={() => setVersionApp(app)} className="btn btn-success btn-sm" style={{ marginRight: '8px' }}>
+                          Actualizar Version
+                        </button>
+                        <button onClick={() => setHistoryApp(app)} className="btn btn-info btn-sm" style={{ marginRight: '8px' }}>
+                          Historial
+                        </button>
                         <button onClick={() => handleDelete(app._id)} className="btn btn-danger btn-sm">
                           Eliminar
                         </button>
@@ -364,8 +401,8 @@ export default function AdminDashboard() {
                   {filteredAndPaginatedReports.reports.map((report) => (
                     <tr key={report._id}>
                       <td>{report.title}</td>
-                      <td>{report.application.name} v{report.application.version}</td>
-                      <td>{report.reportedBy.name}</td>
+                      <td>{report.application?.name || 'N/A'} v{report.application?.version || '?'}</td>
+                      <td>{report.reportedBy?.name || 'Usuario desconocido'}</td>
                       <td>
                         <span className={`badge badge-${report.severity}`}>{report.severity}</span>
                       </td>
@@ -474,9 +511,9 @@ export default function AdminDashboard() {
         )}
 
         {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-overlay" onClick={() => { setShowModal(false); setEditingApp(null) }}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>Nueva Aplicación</h2>
+              <h2>{editingApp ? 'Editar Aplicación' : 'Nueva Aplicación'}</h2>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
                   <label className="form-label">Nombre</label>
@@ -543,11 +580,11 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="modal-actions">
-                  <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary">
+                  <button type="button" onClick={() => { setShowModal(false); setEditingApp(null) }} className="btn btn-secondary">
                     Cancelar
                   </button>
                   <button type="submit" className="btn btn-primary">
-                    Crear
+                    {editingApp ? 'Guardar' : 'Crear'}
                   </button>
                 </div>
               </form>
@@ -662,6 +699,23 @@ export default function AdminDashboard() {
             reportId={selectedReportId}
             onClose={() => setSelectedReportId(null)}
             onUpdate={loadBugReports}
+          />
+        )}
+
+        {/* Modal de Actualizar Version */}
+        {versionApp && (
+          <UpdateVersionModal
+            application={versionApp}
+            onClose={() => setVersionApp(null)}
+            onUpdate={loadApplications}
+          />
+        )}
+
+        {/* Modal de Historial de Versiones */}
+        {historyApp && (
+          <VersionHistoryModal
+            application={historyApp}
+            onClose={() => setHistoryApp(null)}
           />
         )}
       </div>

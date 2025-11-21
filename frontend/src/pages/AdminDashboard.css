@@ -71,6 +71,16 @@
   background-color: #138496;
 }
 
+.btn-success {
+  background-color: #10b981;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #059669;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

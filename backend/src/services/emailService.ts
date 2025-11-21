@@ -49,7 +49,7 @@ class EmailService {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Bug Solucionado - Por Testear</h2>
         <p>Hola <strong>${testerName}</strong>,</p>
-        <p>Te notificamos que el siguiente bug ha sido marcado como <strong>solucionado</strong> y requiere tu validación:</p>
+        <p>Te notificamos que el siguiente bug ha sido marcado como <strong>solucionado</strong> y requiere tu validaciï¿½n:</p>
 
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #1f2937;">${bugTitle}</h3>
@@ -59,8 +59,8 @@ class EmailService {
         <p>Por favor, revisa el bug y selecciona una de las siguientes opciones:</p>
         <ul>
           <li><strong>Completamente Solucionado:</strong> El bug fue resuelto correctamente</li>
-          <li><strong>Provocó Regresión:</strong> La solución causó nuevos problemas</li>
-          <li><strong>No se Solucionó:</strong> El bug persiste</li>
+          <li><strong>Provocï¿½ Regresiï¿½n:</strong> La soluciï¿½n causï¿½ nuevos problemas</li>
+          <li><strong>No se Solucionï¿½:</strong> El bug persiste</li>
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
@@ -72,7 +72,7 @@ class EmailService {
         </div>
 
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-          Este es un mensaje automático del Sistema de Gestión de QA.
+          Este es un mensaje automï¿½tico del Sistema de Gestiï¿½n de QA.
         </p>
       </div>
     `;
@@ -93,8 +93,8 @@ class EmailService {
 
     const decisionLabels = {
       'fixed': 'Completamente Solucionado ',
-      'regression': 'Provocó Regresión  ',
-      'not-fixed': 'No se Solucionó L'
+      'regression': 'Provocï¿½ Regresiï¿½n ï¿½',
+      'not-fixed': 'No se Solucionï¿½ L'
     };
 
     const decisionColors = {
@@ -103,10 +103,10 @@ class EmailService {
       'not-fixed': '#ef4444'
     };
 
-    const subject = `= Decisión del Tester: ${bugTitle}`;
+    const subject = `= Decisiï¿½n del Tester: ${bugTitle}`;
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Decisión del Tester sobre Bug</h2>
+        <h2 style="color: #2563eb;">Decisiï¿½n del Tester sobre Bug</h2>
         <p>Hola <strong>${adminName}</strong>,</p>
         <p>El tester <strong>${testerName}</strong> ha evaluado el siguiente bug:</p>
 
@@ -134,12 +134,55 @@ class EmailService {
         </div>
 
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-          Este es un mensaje automático del Sistema de Gestión de QA.
+          Este es un mensaje automï¿½tico del Sistema de Gestiï¿½n de QA.
         </p>
       </div>
     `;
 
     return this.sendEmail({ to: adminEmail, subject, html });
+  }
+
+  async sendVersionUpdateNotification(
+    qaEmail: string,
+    qaName: string,
+    appName: string,
+    previousVersion: string,
+    newVersion: string,
+    changelog: string
+  ): Promise<boolean> {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const subject = `ğŸ”„ Nueva VersiÃ³n: ${appName} v${newVersion}`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">ğŸ”„ Nueva VersiÃ³n Disponible</h2>
+        <p>Hola <strong>${qaName}</strong>,</p>
+        <p>Te notificamos que la aplicaciÃ³n <strong>${appName}</strong> ha sido actualizada:</p>
+
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 5px 0;"><strong>VersiÃ³n anterior:</strong> ${previousVersion}</p>
+          <p style="margin: 5px 0;"><strong>Nueva versiÃ³n:</strong> <span style="color: #10b981; font-weight: bold;">${newVersion}</span></p>
+        </div>
+
+        <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; color: #374151;"><strong>ğŸ“ Notas de la versiÃ³n:</strong></p>
+          <p style="margin: 10px 0 0 0; color: #6b7280; white-space: pre-wrap;">${changelog}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${frontendUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 30px;
+                    text-decoration: none; border-radius: 6px; display: inline-block;">
+            Ir al Sistema de QA
+          </a>
+        </div>
+
+        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
+          Este es un mensaje automÃ¡tico del Sistema de GestiÃ³n de QA.
+        </p>
+      </div>
+    `;
+
+    return this.sendEmail({ to: qaEmail, subject, html });
   }
 }
 
