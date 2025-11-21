@@ -2,6 +2,8 @@ import express from 'express';
 import User from '../models/User';
 import Application from '../models/Application';
 import { authMiddleware, adminOnly, AuthRequest } from '../middleware/auth';
+import emailService from '../services/emailService';
+import whatsappService from '../services/whatsappService';
 
 const router = express.Router();
 
@@ -69,6 +71,82 @@ router.patch('/preferences', authMiddleware, async (req: AuthRequest, res) => {
     res.json({ message: 'Preferencias actualizadas', user });
   } catch (error) {
     res.status(500).json({ message: 'Error al actualizar preferencias', error });
+  }
+});
+
+// Enviar notificación de prueba por email
+router.post('/test-email', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    if (!user.email) {
+      return res.status(400).json({ message: 'No tienes un email configurado' });
+    }
+
+    const success = await emailService.sendEmail({
+      to: user.email,
+      subject: '🔔 Notificación de Prueba - Sistema QA',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2563eb;">✅ Notificación de Prueba</h2>
+          <p>Hola <strong>${user.name}</strong>,</p>
+          <p>Esta es una notificación de prueba del Sistema de Gestión de QA.</p>
+          <p>Si estás recibiendo este mensaje, tu configuración de email está funcionando correctamente.</p>
+          <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
+            Sistema de Gestión de QA
+          </p>
+        </div>
+      `
+    });
+
+    if (success) {
+      res.json({ message: 'Email de prueba enviado correctamente', email: user.email });
+    } else {
+      res.status(500).json({ message: 'Error al enviar email de prueba' });
+    }
+  } catch (error) {
+    console.error('Error sending test email:', error);
+    res.status(500).json({ message: 'Error al enviar email de prueba', error });
+  }
+});
+
+// Enviar notificación de prueba por WhatsApp
+router.post('/test-whatsapp', authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    if (!user.whatsappNumber) {
+      return res.status(400).json({ message: 'No tienes un número de WhatsApp configurado' });
+    }
+
+    const message = `
+🔔 *Notificación de Prueba*
+
+Hola *${user.name}*,
+
+Esta es una notificación de prueba del Sistema de Gestión de QA.
+
+Si estás recibiendo este mensaje, tu configuración de WhatsApp está funcionando correctamente. ✅
+
+_Sistema de Gestión de QA_
+    `.trim();
+
+    const success = await whatsappService.sendMessage(user.whatsappNumber, message);
+
+    if (success) {
+      res.json({ message: 'WhatsApp de prueba enviado correctamente', whatsappNumber: user.whatsappNumber });
+    } else {
+      res.status(500).json({ message: 'Error al enviar WhatsApp de prueba' });
+    }
+  } catch (error) {
+    console.error('Error sending test WhatsApp:', error);
+    res.status(500).json({ message: 'Error al enviar WhatsApp de prueba', error });
   }
 });
 

@@ -23,6 +23,8 @@ export default function NotificationPreferences({ onClose }: NotificationPrefere
   const [whatsappNumber, setWhatsappNumber] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [testingEmail, setTestingEmail] = useState(false)
+  const [testingWhatsapp, setTestingWhatsapp] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
@@ -64,6 +66,38 @@ export default function NotificationPreferences({ onClose }: NotificationPrefere
     }
   }
 
+  const handleTestEmail = async () => {
+    setTestingEmail(true)
+    setMessage('')
+
+    try {
+      const response = await api.post('/qa-users/test-email')
+      setMessage(`Email enviado a: ${response.data.email}`)
+      setTimeout(() => setMessage(''), 5000)
+    } catch (error: any) {
+      console.error('Error al enviar email de prueba', error)
+      setMessage(error.response?.data?.message || 'Error al enviar email de prueba')
+    } finally {
+      setTestingEmail(false)
+    }
+  }
+
+  const handleTestWhatsapp = async () => {
+    setTestingWhatsapp(true)
+    setMessage('')
+
+    try {
+      const response = await api.post('/qa-users/test-whatsapp')
+      setMessage(`WhatsApp enviado a: ${response.data.whatsappNumber}`)
+      setTimeout(() => setMessage(''), 5000)
+    } catch (error: any) {
+      console.error('Error al enviar WhatsApp de prueba', error)
+      setMessage(error.response?.data?.message || 'Error al enviar WhatsApp de prueba')
+    } finally {
+      setTestingWhatsapp(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="modal-overlay" onClick={onClose}>
@@ -97,35 +131,69 @@ export default function NotificationPreferences({ onClose }: NotificationPrefere
         <div style={{ marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#374151' }}>Canales de Notificacion</h3>
 
-          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={emailEnabled}
-              onChange={(e) => setEmailEnabled(e.target.checked)}
-              style={{ marginRight: '0.75rem', width: '18px', height: '18px' }}
-            />
-            <div>
-              <div style={{ fontWeight: '500' }}>Notificaciones por Email</div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Recibir notificaciones en: {profile?.email}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flex: 1 }}>
+              <input
+                type="checkbox"
+                checked={emailEnabled}
+                onChange={(e) => setEmailEnabled(e.target.checked)}
+                style={{ marginRight: '0.75rem', width: '18px', height: '18px' }}
+              />
+              <div>
+                <div style={{ fontWeight: '500' }}>Notificaciones por Email</div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  Recibir notificaciones en: {profile?.email}
+                </div>
               </div>
-            </div>
-          </label>
+            </label>
+            <button
+              type="button"
+              onClick={handleTestEmail}
+              disabled={testingEmail}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                cursor: testingEmail ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {testingEmail ? 'Enviando...' : 'Probar Email'}
+            </button>
+          </div>
 
-          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={whatsappEnabled}
-              onChange={(e) => setWhatsappEnabled(e.target.checked)}
-              style={{ marginRight: '0.75rem', width: '18px', height: '18px' }}
-            />
-            <div>
-              <div style={{ fontWeight: '500' }}>Notificaciones por WhatsApp</div>
-              <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Recibir mensajes de WhatsApp con actualizaciones
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flex: 1 }}>
+              <input
+                type="checkbox"
+                checked={whatsappEnabled}
+                onChange={(e) => setWhatsappEnabled(e.target.checked)}
+                style={{ marginRight: '0.75rem', width: '18px', height: '18px' }}
+              />
+              <div>
+                <div style={{ fontWeight: '500' }}>Notificaciones por WhatsApp</div>
+                <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                  Recibir mensajes de WhatsApp con actualizaciones
+                </div>
               </div>
-            </div>
-          </label>
+            </label>
+            <button
+              type="button"
+              onClick={handleTestWhatsapp}
+              disabled={testingWhatsapp || !whatsappNumber}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                backgroundColor: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                cursor: (testingWhatsapp || !whatsappNumber) ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {testingWhatsapp ? 'Enviando...' : 'Probar WhatsApp'}
+            </button>
+          </div>
         </div>
 
         {whatsappEnabled && (
