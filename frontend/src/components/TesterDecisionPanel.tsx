@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../lib/api';
 import './TesterDecisionPanel.css';
 
 interface TesterDecisionPanelProps {
@@ -51,27 +52,14 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
     setError('');
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/bug-reports/${bugId}/tester-decision`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          decision: selectedDecision,
-          comment: comment.trim()
-        })
+      await api.patch(`/bug-reports/${bugId}/tester-decision`, {
+        decision: selectedDecision,
+        comment: comment.trim()
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Error al enviar la decisión');
-      }
 
       onDecisionMade();
     } catch (err: any) {
-      setError(err.message || 'Error al enviar la decisión');
+      setError(err.response?.data?.message || err.message || 'Error al enviar la decisión');
     } finally {
       setIsSubmitting(false);
     }
