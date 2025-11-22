@@ -433,6 +433,60 @@
   color: #6c757d;
 }
 
+/* Tester Decision Info */
+.tester-decision-info {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.decision-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.decision-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: white;
+}
+
+.decision-date {
+  font-size: 0.8125rem;
+  color: #6c757d;
+}
+
+.decision-comment {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.decision-comment strong {
+  display: block;
+  font-size: 0.8125rem;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.decision-comment p {
+  margin: 0;
+  color: #212529;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* Footer */
 .modal-detail-footer {
   display: flex;

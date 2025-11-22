@@ -10,7 +10,9 @@ class NotificationService {
    */
   async notifyTesterBugPendingTest(bugId: string): Promise<void> {
     try {
-      const bug = await BugReport.findById(bugId).populate('reportedBy');
+      const bug = await BugReport.findById(bugId)
+        .populate('reportedBy')
+        .populate('application', 'name');
       if (!bug) {
         console.error('Bug not found');
         return;
@@ -22,6 +24,7 @@ class NotificationService {
         return;
       }
 
+      const appName = (bug.application as any)?.name || 'Aplicación';
       const preferences = tester.notificationPreferences || { email: true, whatsapp: true };
 
       // Enviar email si est� habilitado
@@ -30,7 +33,8 @@ class NotificationService {
           tester.email,
           tester.name,
           bug._id.toString(),
-          bug.title
+          bug.title,
+          appName
         );
       }
 
@@ -40,7 +44,8 @@ class NotificationService {
           tester.whatsappNumber,
           tester.name,
           bug._id.toString(),
-          bug.title
+          bug.title,
+          appName
         );
       }
 
@@ -59,7 +64,9 @@ class NotificationService {
     comment: string
   ): Promise<void> {
     try {
-      const bug = await BugReport.findById(bugId).populate('reportedBy');
+      const bug = await BugReport.findById(bugId)
+        .populate('reportedBy')
+        .populate('application', 'name');
       if (!bug) {
         console.error('Bug not found');
         return;
@@ -70,6 +77,8 @@ class NotificationService {
         console.error('Tester not found');
         return;
       }
+
+      const appName = (bug.application as any)?.name || 'Aplicación';
 
       // Obtener todos los admins
       const admins = await User.find({ role: 'admin' });
@@ -86,6 +95,7 @@ class NotificationService {
             tester.name,
             bug._id.toString(),
             bug.title,
+            appName,
             decision,
             comment
           );
@@ -99,6 +109,7 @@ class NotificationService {
             tester.name,
             bug._id.toString(),
             bug.title,
+            appName,
             decision,
             comment
           );

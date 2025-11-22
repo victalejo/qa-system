@@ -50,7 +50,8 @@ class WhatsAppService {
     phoneNumber: string,
     testerName: string,
     bugId: string,
-    bugTitle: string
+    bugTitle: string,
+    appName: string
   ): Promise<boolean> {
     const message = `
 📋 *Bug Solucionado - Requiere Testing*
@@ -59,6 +60,7 @@ Hola *${testerName}*,
 
 Te notificamos que el siguiente bug ha sido marcado como *solucionado* y requiere tu validación:
 
+📱 *Aplicación:* ${appName}
 🔍 *${bugTitle}*
 🆔 ID: ${bugId}
 
@@ -81,6 +83,7 @@ _Sistema de Gestión de QA de *IA Portafolio*_
     testerName: string,
     bugId: string,
     bugTitle: string,
+    appName: string,
     decision: 'fixed' | 'regression' | 'not-fixed',
     comment: string
   ): Promise<boolean> {
@@ -97,6 +100,7 @@ Hola *${adminName}*,
 
 El tester *${testerName}* ha evaluado el siguiente bug:
 
+📱 *Aplicación:* ${appName}
 🔍 *${bugTitle}*
 🆔 ID: ${bugId}
 

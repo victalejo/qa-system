@@ -45,6 +45,11 @@ interface BugReport {
     };
     changedAt: string;
   }>;
+  testerDecision?: {
+    decision: 'fixed' | 'regression' | 'not-fixed';
+    comment: string;
+    decidedAt: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -129,6 +134,24 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
       'pending-test': 'Por Testear'
     };
     return labels[status] || status;
+  };
+
+  const getDecisionLabel = (decision: string): string => {
+    const labels: Record<string, string> = {
+      'fixed': 'Solucionado',
+      'not-fixed': 'No Solucionado',
+      'regression': 'Regresión'
+    };
+    return labels[decision] || decision;
+  };
+
+  const getDecisionColor = (decision: string): string => {
+    const colors: Record<string, string> = {
+      'fixed': '#28a745',
+      'not-fixed': '#dc3545',
+      'regression': '#fd7e14'
+    };
+    return colors[decision] || '#6c757d';
   };
 
   const formatDate = (dateString: string): string => {
@@ -316,6 +339,32 @@ const BugReportDetailModal: React.FC<BugReportDetailModalProps> = ({
               {updatingStatus && <span className="status-updating">Actualizando...</span>}
             </div>
           </section>
+
+          {/* Decisión del Tester (visible para admins) */}
+          {report.testerDecision && (
+            <section className="detail-section">
+              <h3 className="detail-section-title">Decisión del Tester</h3>
+              <div className="tester-decision-info">
+                <div className="decision-header">
+                  <span
+                    className="decision-badge"
+                    style={{ backgroundColor: getDecisionColor(report.testerDecision.decision) }}
+                  >
+                    {getDecisionLabel(report.testerDecision.decision)}
+                  </span>
+                  <span className="decision-date">
+                    {formatDate(report.testerDecision.decidedAt)}
+                  </span>
+                </div>
+                {report.testerDecision.comment && (
+                  <div className="decision-comment">
+                    <strong>Comentario del QA:</strong>
+                    <p>{report.testerDecision.comment}</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* Panel de Decisión del Tester */}
           {report.status === 'pending-test' && currentUser?.id === report.reportedBy._id && (

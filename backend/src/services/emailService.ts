@@ -30,7 +30,11 @@ class EmailService {
         from: process.env.SMTP_USER,
         to: options.to,
         subject: options.subject,
-        html: options.html
+        html: options.html,
+        encoding: 'utf-8',
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8'
+        }
       });
       console.log(`Email sent successfully to ${options.to}`);
       return true;
@@ -44,17 +48,19 @@ class EmailService {
     testerEmail: string,
     testerName: string,
     bugId: string,
-    bugTitle: string
+    bugTitle: string,
+    appName: string
   ): Promise<boolean> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const subject = '= Bug Solucionado - Requiere Testing';
+    const subject = `🐛 Bug Solucionado - Requiere Testing [${appName}]`;
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Bug Solucionado - Por Testear</h2>
         <p>Hola <strong>${testerName}</strong>,</p>
-        <p>Te notificamos que el siguiente bug ha sido marcado como <strong>solucionado</strong> y requiere tu validaci�n:</p>
+        <p>Te notificamos que el siguiente bug ha sido marcado como <strong>solucionado</strong> y requiere tu validación:</p>
 
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="color: #6b7280; margin: 5px 0;"><strong>Aplicación:</strong> ${appName}</p>
           <h3 style="margin-top: 0; color: #1f2937;">${bugTitle}</h3>
           <p style="color: #6b7280; margin: 5px 0;"><strong>ID:</strong> ${bugId}</p>
         </div>
@@ -62,8 +68,8 @@ class EmailService {
         <p>Por favor, revisa el bug y selecciona una de las siguientes opciones:</p>
         <ul>
           <li><strong>Completamente Solucionado:</strong> El bug fue resuelto correctamente</li>
-          <li><strong>Provoc� Regresi�n:</strong> La soluci�n caus� nuevos problemas</li>
-          <li><strong>No se Solucion�:</strong> El bug persiste</li>
+          <li><strong>Provocó Regresión:</strong> La solución causó nuevos problemas</li>
+          <li><strong>No se Solucionó:</strong> El bug persiste</li>
         </ul>
 
         <div style="text-align: center; margin: 30px 0;">
@@ -75,7 +81,7 @@ class EmailService {
         </div>
 
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-          Este es un mensaje autom�tico del Sistema de Gesti�n de QA.
+          Este es un mensaje automático del Sistema de Gestión de QA.
         </p>
       </div>
     `;
@@ -89,15 +95,16 @@ class EmailService {
     testerName: string,
     bugId: string,
     bugTitle: string,
+    appName: string,
     decision: 'fixed' | 'regression' | 'not-fixed',
     comment: string
   ): Promise<boolean> {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
 
     const decisionLabels = {
-      'fixed': 'Completamente Solucionado ',
-      'regression': 'Provoc� Regresi�n �',
-      'not-fixed': 'No se Solucion� L'
+      'fixed': 'Completamente Solucionado ✅',
+      'regression': 'Provocó Regresión ⚠️',
+      'not-fixed': 'No se Solucionó ❌'
     };
 
     const decisionColors = {
@@ -106,14 +113,15 @@ class EmailService {
       'not-fixed': '#ef4444'
     };
 
-    const subject = `= Decisi�n del Tester: ${bugTitle}`;
+    const subject = `📋 Decisión del Tester: ${bugTitle} [${appName}]`;
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #2563eb;">Decisi�n del Tester sobre Bug</h2>
+        <h2 style="color: #2563eb;">Decisión del Tester sobre Bug</h2>
         <p>Hola <strong>${adminName}</strong>,</p>
         <p>El tester <strong>${testerName}</strong> ha evaluado el siguiente bug:</p>
 
         <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="color: #6b7280; margin: 5px 0;"><strong>Aplicación:</strong> ${appName}</p>
           <h3 style="margin-top: 0; color: #1f2937;">${bugTitle}</h3>
           <p style="color: #6b7280; margin: 5px 0;"><strong>ID:</strong> ${bugId}</p>
         </div>
@@ -137,7 +145,7 @@ class EmailService {
         </div>
 
         <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
-          Este es un mensaje autom�tico del Sistema de Gesti�n de QA.
+          Este es un mensaje automático del Sistema de Gestión de QA.
         </p>
       </div>
     `;
