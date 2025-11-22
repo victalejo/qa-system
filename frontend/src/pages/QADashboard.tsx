@@ -103,7 +103,8 @@ export default function QADashboard() {
               <h2>🧪 Bugs Por Testear ({bugReports.filter(report => report.status === 'pending-test').length})</h2>
             </div>
             <div className="pending-test-notice">
-              <p>Los siguientes bugs han sido marcados como solucionados y requieren tu validación:</p>
+              <p>Los siguientes bugs han sido marcados como solucionados y requieren tu validación.</p>
+              <p><strong>Haz clic en un bug para evaluarlo.</strong></p>
             </div>
             <table className="table">
               <thead>

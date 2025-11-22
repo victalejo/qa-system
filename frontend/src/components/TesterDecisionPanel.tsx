@@ -16,21 +16,21 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
     {
       value: 'fixed' as const,
       label: 'Completamente Solucionado',
-      icon: '',
+      icon: '✅',
       color: 'success',
       description: 'El bug fue resuelto correctamente'
     },
     {
       value: 'regression' as const,
-      label: 'Provoc� Regresi�n',
-      icon: '�',
+      label: 'Provocó Regresión',
+      icon: '⚠️',
       color: 'warning',
-      description: 'La soluci�n caus� nuevos problemas'
+      description: 'La solución causó nuevos problemas'
     },
     {
       value: 'not-fixed' as const,
-      label: 'No se Solucion�',
-      icon: 'L',
+      label: 'No se Solucionó',
+      icon: '❌',
       color: 'danger',
       description: 'El bug persiste'
     }
@@ -38,7 +38,7 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
 
   const handleSubmit = async () => {
     if (!selectedDecision) {
-      setError('Por favor, selecciona una decisi�n');
+      setError('Por favor, selecciona una decisión');
       return;
     }
 
@@ -66,12 +66,12 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Error al enviar la decisi�n');
+        throw new Error(data.message || 'Error al enviar la decisión');
       }
 
       onDecisionMade();
     } catch (err: any) {
-      setError(err.message || 'Error al enviar la decisi�n');
+      setError(err.message || 'Error al enviar la decisión');
     } finally {
       setIsSubmitting(false);
     }
@@ -124,7 +124,7 @@ const TesterDecisionPanel: React.FC<TesterDecisionPanelProps> = ({ bugId, onDeci
           onClick={handleSubmit}
           disabled={isSubmitting || !selectedDecision || !comment.trim()}
         >
-          {isSubmitting ? 'Enviando...' : 'Enviar Evaluaci�n'}
+          {isSubmitting ? 'Enviando...' : 'Enviar Evaluación'}
         </button>
       </div>
     </div>
