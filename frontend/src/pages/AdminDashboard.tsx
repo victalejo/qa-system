@@ -7,6 +7,7 @@ import Pagination from '../components/Pagination'
 import BugReportStats from '../components/BugReportStats'
 import UpdateVersionModal from '../components/UpdateVersionModal'
 import VersionHistoryModal from '../components/VersionHistoryModal'
+import NotificationPreferences from '../components/NotificationPreferences'
 import './AdminDashboard.css'
 
 interface Application {
@@ -48,6 +49,7 @@ export default function AdminDashboard() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null)
   const [versionApp, setVersionApp] = useState<Application | null>(null)
   const [historyApp, setHistoryApp] = useState<Application | null>(null)
+  const [showNotificationPreferences, setShowNotificationPreferences] = useState(false)
 
   // Estados para filtros y paginación
   const [filters, setFilters] = useState<FilterValues>({
@@ -289,6 +291,9 @@ export default function AdminDashboard() {
         <h1>Panel Administrativo</h1>
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
+          <button onClick={() => setShowNotificationPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
+            Notificaciones
+          </button>
           <button onClick={logout} className="btn btn-secondary">
             Cerrar Sesión
           </button>
@@ -716,6 +721,13 @@ export default function AdminDashboard() {
           <VersionHistoryModal
             application={historyApp}
             onClose={() => setHistoryApp(null)}
+          />
+        )}
+
+        {/* Modal de Preferencias de Notificación */}
+        {showNotificationPreferences && (
+          <NotificationPreferences
+            onClose={() => setShowNotificationPreferences(false)}
           />
         )}
       </div>
