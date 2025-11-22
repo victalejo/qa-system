@@ -195,6 +195,51 @@ class EmailService {
 
     return this.sendEmail({ to: qaEmail, subject, html });
   }
+
+  async sendAdminCommentNotification(
+    qaEmail: string,
+    qaName: string,
+    adminName: string,
+    bugId: string,
+    bugTitle: string,
+    appName: string,
+    commentText: string
+  ): Promise<boolean> {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const subject = `💬 Nuevo Comentario de Admin: ${bugTitle} [${appName}]`;
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">💬 Nuevo Comentario en Bug</h2>
+        <p>Hola <strong>${qaName}</strong>,</p>
+        <p>El administrador <strong>${adminName}</strong> ha agregado un comentario en el siguiente bug:</p>
+
+        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <p style="color: #6b7280; margin: 5px 0;"><strong>Aplicación:</strong> ${appName}</p>
+          <h3 style="margin-top: 0; color: #1f2937;">${bugTitle}</h3>
+          <p style="color: #6b7280; margin: 5px 0;"><strong>ID:</strong> ${bugId}</p>
+        </div>
+
+        <div style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+          <p style="margin: 0; color: #374151;"><strong>Comentario:</strong></p>
+          <p style="margin: 10px 0 0 0; color: #6b7280;">${commentText}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${frontendUrl}"
+             style="background-color: #2563eb; color: white; padding: 12px 30px;
+                    text-decoration: none; border-radius: 6px; display: inline-block;">
+            Ver Bug
+          </a>
+        </div>
+
+        <p style="color: #6b7280; font-size: 12px; margin-top: 30px;">
+          Este es un mensaje automático del Sistema de Gestión de QA.
+        </p>
+      </div>
+    `;
+
+    return this.sendEmail({ to: qaEmail, subject, html });
+  }
 }
 
 export default new EmailService();

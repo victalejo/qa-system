@@ -145,6 +145,37 @@ _Sistema de Gestión de QA de *IA Portafolio*_
 
     return this.sendMessage(phoneNumber, message);
   }
+
+  async sendAdminCommentNotification(
+    phoneNumber: string,
+    qaName: string,
+    adminName: string,
+    bugId: string,
+    bugTitle: string,
+    appName: string,
+    commentText: string
+  ): Promise<boolean> {
+    const message = `
+💬 *Nuevo Comentario de Administrador*
+
+Hola *${qaName}*,
+
+El administrador *${adminName}* ha agregado un comentario en el siguiente bug:
+
+📱 *Aplicación:* ${appName}
+🔍 *${bugTitle}*
+🆔 ID: ${bugId}
+
+💬 *Comentario:*
+${commentText}
+
+Ingresa al sistema para ver los detalles completos.
+
+_Sistema de Gestión de QA de *IA Portafolio*_
+    `.trim();
+
+    return this.sendMessage(phoneNumber, message);
+  }
 }
 
 export default new WhatsAppService();

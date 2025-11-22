@@ -179,6 +179,81 @@ class NotificationService {
       console.error('Error sending version update notifications:', error);
     }
   }
+
+  /**
+   * Notifica a los QAs asignados cuando un admin agrega un comentario en un bug
+   */
+  async notifyQAsAdminComment(
+    bugId: string,
+    commentText: string,
+    adminName: string
+  ): Promise<void> {
+    try {
+      const bug = await BugReport.findById(bugId)
+        .populate('application');
+
+      if (!bug) {
+        console.error('Bug not found');
+        return;
+      }
+
+      const appId = (bug.application as any)?._id;
+      if (!appId) {
+        console.error('Application not found for bug');
+        return;
+      }
+
+      const application = await Application.findById(appId).populate('assignedQAs');
+      if (!application) {
+        console.error('Application not found');
+        return;
+      }
+
+      const assignedQAs: any[] = application.assignedQAs || [];
+
+      if (assignedQAs.length === 0) {
+        console.log(`No QAs assigned to application ${application.name}`);
+        return;
+      }
+
+      const appName = application.name;
+
+      // Enviar notificación a cada QA asignado
+      for (const qa of assignedQAs) {
+        const preferences = qa.notificationPreferences || { email: true, whatsapp: true };
+
+        // Enviar email si está habilitado
+        if (preferences.email && qa.email) {
+          await emailService.sendAdminCommentNotification(
+            qa.email,
+            qa.name,
+            adminName,
+            bug._id.toString(),
+            bug.title,
+            appName,
+            commentText
+          );
+        }
+
+        // Enviar WhatsApp si está habilitado y tiene número
+        if (preferences.whatsapp && qa.whatsappNumber) {
+          await whatsappService.sendAdminCommentNotification(
+            qa.whatsappNumber,
+            qa.name,
+            adminName,
+            bug._id.toString(),
+            bug.title,
+            appName,
+            commentText
+          );
+        }
+      }
+
+      console.log(`Admin comment notifications sent to ${assignedQAs.length} QAs for bug ${bugId}`);
+    } catch (error) {
+      console.error('Error sending admin comment notifications:', error);
+    }
+  }
 }
 
 export default new NotificationService();

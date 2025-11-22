@@ -22,7 +22,8 @@
       "Bash(findstr:*)",
       "Bash(find:*)",
       "Bash(nul)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

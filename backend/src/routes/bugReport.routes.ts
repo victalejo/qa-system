@@ -1,5 +1,6 @@
 import express from 'express';
 import BugReport from '../models/BugReport';
+import User from '../models/User';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import notificationService from '../services/notificationService';
 
@@ -265,6 +266,18 @@ router.post('/:id/comments', authMiddleware, async (req: AuthRequest, res) => {
     await report.save();
 
     await report.populate('comments.user', 'name email');
+
+    // Si el comentario es de un admin, notificar a los QAs asignados
+    if (req.userRole === 'admin') {
+      const admin = await User.findById(req.userId);
+      if (admin) {
+        notificationService.notifyQAsAdminComment(
+          report._id.toString(),
+          text.trim(),
+          admin.name
+        );
+      }
+    }
 
     res.status(201).json(report);
   } catch (error) {
