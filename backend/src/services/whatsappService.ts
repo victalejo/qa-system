@@ -18,8 +18,8 @@ class WhatsAppService {
 
   async sendMessage(phoneNumber: string, message: string): Promise<boolean> {
     try {
-      // Formatear el n�mero de tel�fono al formato de WhatsApp
-      // Asume que el n�mero viene sin espacios ni caracteres especiales
+      // Formatear el número de teléfono al formato de WhatsApp
+      // Asume que el número viene sin espacios ni caracteres especiales
       const chatId = phoneNumber.includes('@c.us') ? phoneNumber : `${phoneNumber}@c.us`;
 
       const response = await axios.post(
@@ -53,23 +53,23 @@ class WhatsAppService {
     bugTitle: string
   ): Promise<boolean> {
     const message = `
-= *Bug Solucionado - Requiere Testing*
+📋 *Bug Solucionado - Requiere Testing*
 
 Hola *${testerName}*,
 
-Te notificamos que el siguiente bug ha sido marcado como *solucionado* y requiere tu validaci�n:
+Te notificamos que el siguiente bug ha sido marcado como *solucionado* y requiere tu validación:
 
-=� *${bugTitle}*
-<� ID: ${bugId}
+🔍 *${bugTitle}*
+🆔 ID: ${bugId}
 
 Por favor, revisa el bug y selecciona una de las siguientes opciones:
- Completamente Solucionado
-� Provoc� Regresi�n
-L No se Solucion�
+✅ Completamente Solucionado
+⚠️ Provocó Regresión
+❌ No se Solucionó
 
 Ingresa al sistema para evaluar el bug.
 
-_Sistema de Gesti�n de QA_
+_Sistema de Gestión de QA de *IA Portafolio*_
     `.trim();
 
     return this.sendMessage(phoneNumber, message);
@@ -85,29 +85,29 @@ _Sistema de Gesti�n de QA_
     comment: string
   ): Promise<boolean> {
     const decisionLabels = {
-      'fixed': 'Completamente Solucionado ',
-      'regression': 'Provoc� Regresi�n �',
-      'not-fixed': 'No se Solucion� L'
+      'fixed': '✅ Completamente Solucionado',
+      'regression': '⚠️ Provocó Regresión',
+      'not-fixed': '❌ No se Solucionó'
     };
 
     const message = `
-= *Decisi�n del Tester sobre Bug*
+📋 *Decisión del Tester sobre Bug*
 
 Hola *${adminName}*,
 
 El tester *${testerName}* ha evaluado el siguiente bug:
 
-=� *${bugTitle}*
-<� ID: ${bugId}
+🔍 *${bugTitle}*
+🆔 ID: ${bugId}
 
-*Decisi�n:* ${decisionLabels[decision]}
+*Decisión:* ${decisionLabels[decision]}
 
-=� *Comentario del Tester:*
+💬 *Comentario del Tester:*
 ${comment}
 
 Ingresa al sistema para ver los detalles completos.
 
-_Sistema de Gesti�n de QA_
+_Sistema de Gestión de QA de *IA Portafolio*_
     `.trim();
 
     return this.sendMessage(phoneNumber, message);
@@ -136,7 +136,7 @@ ${changelog}
 
 Ingresa al sistema para más detalles.
 
-_Sistema de Gestión de QA_
+_Sistema de Gestión de QA de *IA Portafolio*_
     `.trim();
 
     return this.sendMessage(phoneNumber, message);

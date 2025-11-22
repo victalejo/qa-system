@@ -3,6 +3,7 @@ import { useAuthStore } from '../store/authStore'
 import api from '../lib/api'
 import BugReportWizard from '../components/BugReportWizard'
 import NotificationPreferences from '../components/NotificationPreferences'
+import BugReportDetailModal from '../components/BugReportDetailModal'
 import './QADashboard.css'
 
 interface Application {
@@ -28,6 +29,7 @@ export default function QADashboard() {
   const [bugReports, setBugReports] = useState<BugReport[]>([])
   const [showWizard, setShowWizard] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)
+  const [selectedBugId, setSelectedBugId] = useState<string | null>(null)
 
   useEffect(() => {
     loadMyApplications()
@@ -113,7 +115,11 @@ export default function QADashboard() {
               </thead>
               <tbody>
                 {bugReports.filter(report => report.status === 'pending-test').map((report) => (
-                  <tr key={report._id} className="pending-test-row">
+                  <tr
+                    key={report._id}
+                    className="pending-test-row clickable-row"
+                    onClick={() => setSelectedBugId(report._id)}
+                  >
                     <td><strong>{report.title}</strong></td>
                     <td>
                       <span className={`badge badge-${report.severity}`}>{report.severity}</span>
@@ -165,6 +171,14 @@ export default function QADashboard() {
         {showPreferences && (
           <NotificationPreferences
             onClose={() => setShowPreferences(false)}
+          />
+        )}
+
+        {selectedBugId && (
+          <BugReportDetailModal
+            reportId={selectedBugId}
+            onClose={() => setSelectedBugId(null)}
+            onUpdate={loadMyReports}
           />
         )}
       </div>

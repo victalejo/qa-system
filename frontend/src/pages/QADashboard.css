@@ -56,3 +56,12 @@
 .pending-test-row:hover {
   background-color: rgba(102, 126, 234, 0.1);
 }
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+  background-color: rgba(102, 126, 234, 0.15) !important;
+}
