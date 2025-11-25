@@ -87,7 +87,7 @@ router.patch('/:id/version', authMiddleware, adminOnly, async (req: any, res) =>
       return res.status(404).json({ message: 'Aplicación no encontrada' });
     }
 
-    const previousVersion = application.version;
+    const previousVersion = application.version || '0.0.0';
 
     // Crear registro en el historial de versiones
     const versionHistory = new VersionHistory({
@@ -118,7 +118,11 @@ router.patch('/:id/version', authMiddleware, adminOnly, async (req: any, res) =>
       message: 'Versión actualizada y notificaciones enviadas'
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar versión', error });
+    console.error('Error al actualizar versión:', error);
+    res.status(500).json({
+      message: 'Error al actualizar versión',
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 });
 
