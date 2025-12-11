@@ -23,7 +23,8 @@
       "Bash(find:*)",
       "Bash(nul)",
       "Bash(cat:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(node --version:*)"
     ],
     "deny": [],
     "ask": []
