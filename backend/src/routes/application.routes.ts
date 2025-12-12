@@ -95,7 +95,7 @@ router.patch('/:id/version', authMiddleware, adminOnly, async (req: any, res) =>
       version,
       previousVersion,
       changelog,
-      updatedBy: req.user.id
+      updatedBy: req.userId
     });
 
     await versionHistory.save();

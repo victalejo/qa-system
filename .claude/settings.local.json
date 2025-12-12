@@ -24,7 +24,10 @@
       "Bash(nul)",
       "Bash(cat:*)",
       "Bash(dir:*)",
-      "Bash(node --version:*)"
+      "Bash(node --version:*)",
+      "Bash(tasklist:*)",
+      "Bash(mongosh:*)",
+      "Bash(where:*)"
     ],
     "deny": [],
     "ask": []
