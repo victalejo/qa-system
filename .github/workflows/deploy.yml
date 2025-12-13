@@ -47,11 +47,32 @@ jobs:
             exit 1
           fi
 
-      - name: Deployment Status
-        if: always()
+      - name: Notify WhatsApp - Success
+        if: success()
         run: |
-          if [ ${{ job.status }} == 'success' ]; then
-            echo "🎉 Deployment to https://${{ secrets.DOKKU_DOMAIN }} completed successfully!"
-          else
-            echo "❌ Deployment failed. Check the logs above."
-          fi
+          curl -X 'POST' \
+            'https://wapi.iaportafolio.com/api/sendText' \
+            -H 'accept: application/json' \
+            -H 'X-Api-Key: ${{ secrets.WAPI_KEY }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "chatId": "120363409327342712@g.us",
+              "text": "🚀 *DEPLOY EXITOSO* 🚀\n\n✅ *Proyecto:* QA\n🌐 *URL:* https://${{ secrets.DOKKU_DOMAIN }}\n📅 *Fecha:* '"$(date '+%d/%m/%Y %H:%M')"'\n👤 *Por:* ${{ github.actor }}\n\n_Despliegue completado sin errores_",
+              "linkPreview": false,
+              "session": "notificaciones"
+            }'
+
+      - name: Notify WhatsApp - Failure
+        if: failure()
+        run: |
+          curl -X 'POST' \
+            'https://wapi.iaportafolio.com/api/sendText' \
+            -H 'accept: application/json' \
+            -H 'X-Api-Key: ${{ secrets.WAPI_KEY }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "chatId": "120363409327342712@g.us",
+              "text": "⚠️ *DEPLOY FALLIDO* ⚠️\n\n❌ *Proyecto:* QA\n🌐 *URL:* https://${{ secrets.DOKKU_DOMAIN }}\n📅 *Fecha:* '"$(date '+%d/%m/%Y %H:%M')"'\n👤 *Por:* ${{ github.actor }}\n\n_Revisar logs en GitHub Actions_\n🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "linkPreview": false,
+              "session": "notificaciones"
+            }'
