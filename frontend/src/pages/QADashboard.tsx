@@ -5,6 +5,7 @@ import BugReportWizard from '../components/BugReportWizard'
 import NotificationPreferences from '../components/NotificationPreferences'
 import BugReportDetailModal from '../components/BugReportDetailModal'
 import ThemeToggle from '../components/ThemeToggle'
+import { Settings, LogOut, Bug, FlaskConical } from 'lucide-react'
 import './QADashboard.css'
 
 interface Application {
@@ -66,10 +67,12 @@ export default function QADashboard() {
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
           <ThemeToggle />
-          <button onClick={() => setShowPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
+          <button onClick={() => setShowPreferences(true)} className="btn btn-info btn-icon-text">
+            <Settings size={16} />
             Notificaciones
           </button>
-          <button onClick={logout} className="btn btn-secondary">
+          <button onClick={logout} className="btn btn-secondary btn-icon-text">
+            <LogOut size={16} />
             Cerrar Sesión
           </button>
         </div>
@@ -79,7 +82,8 @@ export default function QADashboard() {
         <div className="card">
           <div className="card-header">
             <h2>Mis Aplicaciones Asignadas</h2>
-            <button onClick={() => setShowWizard(true)} className="btn btn-primary">
+            <button onClick={() => setShowWizard(true)} className="btn btn-primary btn-icon-text">
+              <Bug size={16} />
               Nuevo Reporte de Bug
             </button>
           </div>
@@ -102,7 +106,10 @@ export default function QADashboard() {
         {bugReports.filter(report => report.status === 'pending-test').length > 0 && (
           <div className="card card-pending-test">
             <div className="card-header">
-              <h2>🧪 Bugs Por Testear ({bugReports.filter(report => report.status === 'pending-test').length})</h2>
+              <h2 className="heading-with-icon">
+                <FlaskConical size={24} />
+                Bugs Por Testear ({bugReports.filter(report => report.status === 'pending-test').length})
+              </h2>
             </div>
             <div className="pending-test-notice">
               <p>Los siguientes bugs han sido marcados como solucionados y requieren tu validación.</p>

@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import { createServer } from 'http';
 import { connectDB } from './config/database';
+import { socketService } from './services/socketService';
 import authRoutes from './routes/auth.routes';
 import applicationRoutes from './routes/application.routes';
 import qaUserRoutes from './routes/qaUser.routes';
@@ -12,6 +14,7 @@ import uploadRoutes from './routes/upload.routes';
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = parseInt(process.env.PORT || '5000', 10);
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -67,8 +70,12 @@ if (isProduction) {
   });
 }
 
+// Initialize Socket.io
+socketService.initialize(httpServer);
+
 // Listen on 0.0.0.0 for Docker compatibility
-app.listen(PORT, '0.0.0.0', () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
   console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
+  console.log('Socket.io habilitado para colaboración en tiempo real');
 });

@@ -1,0 +1,114 @@
+.draggable-widget {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.draggable-widget:hover {
+  border-color: var(--primary-light);
+}
+
+.draggable-widget.is-dragging {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+
+.draggable-widget.is-collapsed .widget-content {
+  display: none;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--bg-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.widget-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1);
+  color: var(--text-muted);
+  cursor: grab;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-drag-handle:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.widget-drag-handle:active {
+  cursor: grabbing;
+}
+
+.widget-title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.widget-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.widget-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.widget-action-btn:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-hover);
+}
+
+.widget-action-btn.widget-remove:hover {
+  color: var(--danger);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.widget-content {
+  padding: var(--space-4);
+}
+
+/* Grid layout for widget container */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 768px) {
+  .widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .widget-header {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .widget-content {
+    padding: var(--space-3);
+  }
+}

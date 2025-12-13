@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { toast } from 'sonner'
 import { useAuthStore } from '../store/authStore'
 import api from '../lib/api'
 import BugReportDetailModal from '../components/BugReportDetailModal'
@@ -9,6 +10,8 @@ import UpdateVersionModal from '../components/UpdateVersionModal'
 import VersionHistoryModal from '../components/VersionHistoryModal'
 import NotificationPreferences from '../components/NotificationPreferences'
 import ThemeToggle from '../components/ThemeToggle'
+import { CommandPalette, useCommandPalette } from '../components/CommandPalette'
+import { Plus, Edit2, History, Bell, Trash2, AppWindow, LogOut, Settings } from 'lucide-react'
 import './AdminDashboard.css'
 
 interface Application {
@@ -38,6 +41,7 @@ interface BugReport {
 
 export default function AdminDashboard() {
   const { user, logout } = useAuthStore()
+  const { isOpen: isCommandPaletteOpen, close: closeCommandPalette } = useCommandPalette()
   const [activeTab, setActiveTab] = useState<'applications' | 'reports' | 'qa-users' | 'statistics'>('applications')
   const [applications, setApplications] = useState<Application[]>([])
   const [qaUsers, setQAUsers] = useState<QAUser[]>([])
@@ -231,32 +235,54 @@ export default function AdminDashboard() {
   }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('¿Estás seguro de eliminar esta aplicación?')) {
-      try {
-        await api.delete(`/applications/${id}`)
-        loadApplications()
-      } catch (error) {
-        console.error('Error al eliminar aplicación', error)
-      }
-    }
+    toast('¿Eliminar esta aplicación?', {
+      description: 'Esta acción no se puede deshacer.',
+      action: {
+        label: 'Eliminar',
+        onClick: async () => {
+          try {
+            await api.delete(`/applications/${id}`)
+            loadApplications()
+            toast.success('Aplicación eliminada exitosamente')
+          } catch (error) {
+            console.error('Error al eliminar aplicación', error)
+            toast.error('Error al eliminar aplicación')
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancelar',
+        onClick: () => {},
+      },
+    })
   }
 
   const handleRemindTesting = async (app: Application) => {
     const qaCount = app.assignedQAs?.length || 0
     if (qaCount === 0) {
-      alert('No hay QAs asignados a esta aplicación')
+      toast.warning('No hay QAs asignados a esta aplicación')
       return
     }
 
-    if (window.confirm(`¿Enviar recordatorio de testing a ${qaCount} QA(s) asignados a "${app.name}"?`)) {
-      try {
-        const response = await api.post(`/applications/${app._id}/remind-testing`)
-        alert(response.data.message)
-      } catch (error: any) {
-        console.error('Error al enviar recordatorio', error)
-        alert(error.response?.data?.message || 'Error al enviar recordatorio')
-      }
-    }
+    toast(`¿Enviar recordatorio de testing a ${qaCount} QA(s)?`, {
+      description: `Aplicación: ${app.name}`,
+      action: {
+        label: 'Enviar',
+        onClick: async () => {
+          try {
+            const response = await api.post(`/applications/${app._id}/remind-testing`)
+            toast.success(response.data.message)
+          } catch (error: any) {
+            console.error('Error al enviar recordatorio', error)
+            toast.error(error.response?.data?.message || 'Error al enviar recordatorio')
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancelar',
+        onClick: () => {},
+      },
+    })
   }
 
   const updateBugStatus = async (id: string, status: string) => {
@@ -275,25 +301,35 @@ export default function AdminDashboard() {
       setShowQAModal(false)
       setQAFormData({ name: '', email: '', password: '', whatsappNumber: '' })
       loadQAUsers()
-      alert('Usuario QA registrado exitosamente')
+      toast.success('Usuario QA registrado exitosamente')
     } catch (error: any) {
       console.error('Error al registrar QA', error)
-      alert(error.response?.data?.message || 'Error al registrar usuario QA')
+      toast.error(error.response?.data?.message || 'Error al registrar usuario QA')
     }
   }
 
   const handleDeleteQA = async (id: string) => {
-    if (window.confirm('¿Estás seguro de eliminar este usuario QA? Se removerá de todas las aplicaciones asignadas.')) {
-      try {
-        await api.delete(`/qa-users/${id}`)
-        loadQAUsers()
-        loadApplications() // Recargar aplicaciones para actualizar contadores
-        alert('Usuario QA eliminado exitosamente')
-      } catch (error: any) {
-        console.error('Error al eliminar QA', error)
-        alert(error.response?.data?.message || 'Error al eliminar usuario QA')
-      }
-    }
+    toast('¿Eliminar usuario QA?', {
+      description: 'Se removerá de todas las aplicaciones asignadas.',
+      action: {
+        label: 'Eliminar',
+        onClick: async () => {
+          try {
+            await api.delete(`/qa-users/${id}`)
+            loadQAUsers()
+            loadApplications()
+            toast.success('Usuario QA eliminado exitosamente')
+          } catch (error: any) {
+            console.error('Error al eliminar QA', error)
+            toast.error(error.response?.data?.message || 'Error al eliminar usuario QA')
+          }
+        },
+      },
+      cancel: {
+        label: 'Cancelar',
+        onClick: () => {},
+      },
+    })
   }
 
   const viewQAApplications = (qaId: string) => {
@@ -311,10 +347,12 @@ export default function AdminDashboard() {
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
           <ThemeToggle />
-          <button onClick={() => setShowNotificationPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
+          <button onClick={() => setShowNotificationPreferences(true)} className="btn btn-info" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <Settings size={16} />
             Notificaciones
           </button>
-          <button onClick={logout} className="btn btn-secondary">
+          <button onClick={logout} className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+            <LogOut size={16} />
             Cerrar Sesión
           </button>
         </div>
@@ -353,7 +391,8 @@ export default function AdminDashboard() {
             <div className="card">
               <div className="card-header">
                 <h2>Gestión de Aplicaciones</h2>
-                <button onClick={handleNewApp} className="btn btn-primary">
+                <button onClick={handleNewApp} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <Plus size={16} />
                   Nueva Aplicación
                 </button>
               </div>
@@ -376,20 +415,23 @@ export default function AdminDashboard() {
                       <td>{app.platform}</td>
                       <td>{app.assignedQAs?.length || 0}</td>
                       <td>
-                        <button onClick={() => handleEdit(app)} className="btn btn-primary btn-sm" style={{ marginRight: '8px' }}>
+                        <button onClick={() => handleEdit(app)} className="btn btn-primary btn-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <Edit2 size={14} />
                           Editar
                         </button>
-                        <button onClick={() => setVersionApp(app)} className="btn btn-success btn-sm" style={{ marginRight: '8px' }}>
-                          Actualizar Version
+                        <button onClick={() => setVersionApp(app)} className="btn btn-success btn-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <Plus size={14} />
+                          Versión
                         </button>
-                        <button onClick={() => setHistoryApp(app)} className="btn btn-info btn-sm" style={{ marginRight: '8px' }}>
+                        <button onClick={() => setHistoryApp(app)} className="btn btn-info btn-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <History size={14} />
                           Historial
                         </button>
-                        <button onClick={() => handleRemindTesting(app)} className="btn btn-warning btn-sm" style={{ marginRight: '8px' }} title="Enviar recordatorio de testing a los QAs asignados">
-                          🔔
+                        <button onClick={() => handleRemindTesting(app)} className="btn btn-warning btn-sm" style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }} title="Enviar recordatorio de testing">
+                          <Bell size={14} />
                         </button>
-                        <button onClick={() => handleDelete(app._id)} className="btn btn-danger btn-sm">
-                          Eliminar
+                        <button onClick={() => handleDelete(app._id)} className="btn btn-danger btn-sm btn-icon" title="Eliminar aplicación">
+                          <Trash2 size={14} />
                         </button>
                       </td>
                     </tr>
@@ -483,7 +525,8 @@ export default function AdminDashboard() {
             <div className="card">
               <div className="card-header">
                 <h2>Gestión de Usuarios QA</h2>
-                <button onClick={() => setShowQAModal(true)} className="btn btn-primary">
+                <button onClick={() => setShowQAModal(true)} className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <Plus size={16} />
                   Registrar QA
                 </button>
               </div>
@@ -511,15 +554,17 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => viewQAApplications(qa._id)}
                             className="btn btn-info btn-sm"
-                            style={{ marginRight: '8px' }}
+                            style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                           >
+                            <AppWindow size={14} />
                             Ver Apps
                           </button>
                           <button
                             onClick={() => handleDeleteQA(qa._id)}
-                            className="btn btn-danger btn-sm"
+                            className="btn btn-danger btn-sm btn-icon"
+                            title="Eliminar usuario QA"
                           >
-                            Eliminar
+                            <Trash2 size={14} />
                           </button>
                         </td>
                       </tr>
@@ -753,6 +798,18 @@ export default function AdminDashboard() {
             onClose={() => setShowNotificationPreferences(false)}
           />
         )}
+
+        {/* Command Palette (Cmd+K) */}
+        <CommandPalette
+          isOpen={isCommandPaletteOpen}
+          onClose={closeCommandPalette}
+          onNavigate={(path) => {
+            if (path === 'applications') setActiveTab('applications')
+            else if (path === 'reports') setActiveTab('reports')
+            else if (path === 'qa-users') setActiveTab('qa-users')
+            else if (path === 'statistics') setActiveTab('statistics')
+          }}
+        />
       </div>
     </div>
   )

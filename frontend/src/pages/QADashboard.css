@@ -110,3 +110,16 @@
 .btn-info:hover {
   background-color: #138496;
 }
+
+/* Utilidades para botones e iconos */
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.heading-with-icon {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

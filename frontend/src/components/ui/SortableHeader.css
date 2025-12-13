@@ -1,0 +1,34 @@
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.sortable-header:hover {
+  background-color: var(--bg-hover);
+}
+
+.sortable-header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.sort-icon {
+  display: flex;
+  align-items: center;
+  color: var(--primary);
+}
+
+.sort-icon-inactive {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.sortable-header:hover .sort-icon-inactive {
+  opacity: 1;
+}
+
+.sortable-header.sorted {
+  background-color: var(--bg-hover);
+}

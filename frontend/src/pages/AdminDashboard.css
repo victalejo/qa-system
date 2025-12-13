@@ -64,6 +64,37 @@
   font-size: 12px;
 }
 
+/* Botones con iconos */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.btn-icon-only {
+  padding: 6px 8px;
+}
+
+/* Botones de acción en tablas */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.action-buttons .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .btn-info {
   background-color: #17a2b8;
   color: white;
