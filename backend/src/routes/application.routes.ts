@@ -139,4 +139,39 @@ router.get('/:id/versions', authMiddleware, async (req, res) => {
   }
 });
 
+// Enviar recordatorio de testing a los QAs asignados (solo admin)
+router.post('/:id/remind-testing', authMiddleware, adminOnly, async (req: any, res) => {
+  try {
+    const application = await Application.findById(req.params.id).populate('assignedQAs', 'name');
+
+    if (!application) {
+      return res.status(404).json({ message: 'Aplicación no encontrada' });
+    }
+
+    const assignedQAs: any[] = application.assignedQAs || [];
+
+    if (assignedQAs.length === 0) {
+      return res.status(400).json({ message: 'No hay QAs asignados a esta aplicación' });
+    }
+
+    const result = await notificationService.notifyQAsRemindTesting(
+      req.params.id,
+      req.userId
+    );
+
+    if (result.success) {
+      res.json({
+        success: true,
+        message: `Recordatorio enviado a ${result.notifiedCount} QA(s)`,
+        notifiedCount: result.notifiedCount
+      });
+    } else {
+      res.status(500).json({ message: 'Error al enviar recordatorios' });
+    }
+  } catch (error) {
+    console.error('Error sending testing reminder:', error);
+    res.status(500).json({ message: 'Error al enviar recordatorio de testing', error });
+  }
+});
+
 export default router;

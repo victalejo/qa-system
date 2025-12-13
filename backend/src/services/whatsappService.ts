@@ -176,6 +176,26 @@ _Sistema de Gestión de QA de *IA Portafolio*_
 
     return this.sendMessage(phoneNumber, message);
   }
+
+  async sendTestingReminderNotification(
+    phoneNumber: string,
+    qaName: string,
+    appName: string
+  ): Promise<boolean> {
+    const message = `
+🔔 *Recordatorio de Testing*
+
+Hola *${qaName}*,
+
+Te recordamos que debes realizar testing de la aplicación *${appName}*.
+
+Por favor, ingresa al sistema para revisar los bugs pendientes.
+
+_Sistema de Gestión de QA de *IA Portafolio*_
+    `.trim();
+
+    return this.sendMessage(phoneNumber, message);
+  }
 }
 
 export default new WhatsAppService();

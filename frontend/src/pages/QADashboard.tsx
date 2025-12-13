@@ -4,6 +4,7 @@ import api from '../lib/api'
 import BugReportWizard from '../components/BugReportWizard'
 import NotificationPreferences from '../components/NotificationPreferences'
 import BugReportDetailModal from '../components/BugReportDetailModal'
+import ThemeToggle from '../components/ThemeToggle'
 import './QADashboard.css'
 
 interface Application {
@@ -64,6 +65,7 @@ export default function QADashboard() {
         <h1>Panel QA</h1>
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
+          <ThemeToggle />
           <button onClick={() => setShowPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
             Notificaciones
           </button>

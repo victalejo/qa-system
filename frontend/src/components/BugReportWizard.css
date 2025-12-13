@@ -15,15 +15,16 @@
 }
 
 .wizard-container {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 40px var(--shadow-medium);
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
   animation: slideIn 0.3s ease;
+  transition: var(--transition-theme);
 }
 
 @keyframes slideIn {
@@ -43,14 +44,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .wizard-title {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .wizard-close {
@@ -58,14 +59,14 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  color: #6c757d;
+  color: var(--text-muted);
   transition: all 0.2s ease;
   border-radius: 4px;
 }
 
 .wizard-close:hover {
-  background-color: #f8f9fa;
-  color: #dc3545;
+  background-color: var(--bg-hover);
+  color: var(--danger);
 }
 
 .wizard-close svg {
@@ -112,8 +113,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-top: 1px solid #e9ecef;
-  background-color: #f8f9fa;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  transition: var(--transition-theme);
 }
 
 .wizard-footer-right {
@@ -191,13 +193,13 @@
   margin: 0 0 0.5rem 0;
   font-size: 1.75rem;
   font-weight: 600;
-  color: #212529;
+  color: var(--text-primary);
 }
 
 .wizard-step-description {
   margin: 0 0 2rem 0;
   font-size: 1rem;
-  color: #6c757d;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -210,19 +212,19 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #495057;
+  color: var(--text-secondary);
   font-size: 0.9375rem;
 }
 
 .required {
-  color: #dc3545;
+  color: var(--danger);
   margin-left: 0.25rem;
 }
 
 .optional-badge {
   display: inline-block;
-  background-color: #e9ecef;
-  color: #6c757d;
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.25rem 0.5rem;
@@ -233,22 +235,22 @@
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #ced4da;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 1rem;
-  color: #495057;
-  background-color: white;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .form-control::placeholder {
-  color: #adb5bd;
+  color: var(--text-muted);
 }
 
 textarea.form-control {
@@ -325,18 +327,19 @@ textarea.form-control {
 
 /* Tips Box */
 .tips-box {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1.5rem;
+  transition: var(--transition-theme);
 }
 
 .tips-title {
   margin: 0 0 1rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #495057;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -382,20 +385,21 @@ textarea.form-control {
 
 /* Review Summary */
 .review-summary {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1.5rem;
+  transition: var(--transition-theme);
 }
 
 .review-summary-title {
   margin: 0 0 1.5rem 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #212529;
+  color: var(--text-primary);
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .review-item {
@@ -403,7 +407,7 @@ textarea.form-control {
   grid-template-columns: 180px 1fr;
   gap: 1rem;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .review-item:last-child {
@@ -412,12 +416,12 @@ textarea.form-control {
 
 .review-label {
   font-weight: 600;
-  color: #495057;
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
 .review-value {
-  color: #212529;
+  color: var(--text-primary);
   font-size: 0.875rem;
   word-break: break-word;
 }
@@ -426,7 +430,7 @@ textarea.form-control {
   white-space: pre-wrap;
   max-height: 100px;
   overflow-y: auto;
-  background-color: white;
+  background-color: var(--bg-secondary);
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.8125rem;

@@ -3,6 +3,7 @@ import whatsappService from './whatsappService';
 import User from '../models/User';
 import BugReport from '../models/BugReport';
 import Application from '../models/Application';
+import TestingReminder from '../models/TestingReminder';
 
 class NotificationService {
   /**
@@ -252,6 +253,59 @@ class NotificationService {
       console.log(`Admin comment notifications sent to ${assignedQAs.length} QAs for bug ${bugId}`);
     } catch (error) {
       console.error('Error sending admin comment notifications:', error);
+    }
+  }
+
+  /**
+   * Envía recordatorio de testing a todos los QAs asignados a una aplicación
+   */
+  async notifyQAsRemindTesting(
+    applicationId: string,
+    adminId: string
+  ): Promise<{ success: boolean; notifiedCount: number }> {
+    try {
+      const application = await Application.findById(applicationId).populate('assignedQAs');
+      if (!application) {
+        console.error('Application not found');
+        return { success: false, notifiedCount: 0 };
+      }
+
+      const assignedQAs: any[] = application.assignedQAs || [];
+
+      if (assignedQAs.length === 0) {
+        console.log(`No QAs assigned to application ${application.name}`);
+        return { success: true, notifiedCount: 0 };
+      }
+
+      const notifiedQAIds: string[] = [];
+
+      // Enviar WhatsApp a cada QA asignado
+      for (const qa of assignedQAs) {
+        const preferences = qa.notificationPreferences || { email: true, whatsapp: true };
+
+        if (preferences.whatsapp && qa.whatsappNumber) {
+          await whatsappService.sendTestingReminderNotification(
+            qa.whatsappNumber,
+            qa.name,
+            application.name
+          );
+          notifiedQAIds.push(qa._id.toString());
+        }
+      }
+
+      // Guardar registro del recordatorio
+      const reminder = new TestingReminder({
+        application: applicationId,
+        sentBy: adminId,
+        notifiedQAs: notifiedQAIds
+      });
+      await reminder.save();
+
+      console.log(`Testing reminder sent to ${notifiedQAIds.length} QAs for ${application.name}`);
+      return { success: true, notifiedCount: notifiedQAIds.length };
+    } catch (error) {
+      console.error('Error sending testing reminder:', error);
+      return { success: false, notifiedCount: 0 };
     }
   }
 }

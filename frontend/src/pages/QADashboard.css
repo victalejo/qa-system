@@ -1,3 +1,38 @@
+.dashboard {
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  transition: var(--transition-theme);
+}
+
+.dashboard-header {
+  background: var(--bg-secondary);
+  padding: 20px;
+  box-shadow: 0 2px 4px var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  transition: var(--transition-theme);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .applications-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -10,7 +45,7 @@
   color: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px var(--shadow);
 }
 
 .application-card h3 {
@@ -64,4 +99,14 @@
 
 .clickable-row:hover {
   background-color: rgba(102, 126, 234, 0.15) !important;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+}
+
+.btn-info:hover {
+  background-color: #138496;
 }

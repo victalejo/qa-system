@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuthStore } from '../store/authStore'
 import api from '../lib/api'
+import ThemeToggle from '../components/ThemeToggle'
 import './Login.css'
 
 export default function Login() {
@@ -27,6 +28,9 @@ export default function Login() {
 
   return (
     <div className="login-container">
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
       <div className="login-card">
         <h1>Sistema de Gestión QA</h1>
         <p className="login-subtitle">Ingresa tus credenciales</p>

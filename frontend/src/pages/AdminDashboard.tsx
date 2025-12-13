@@ -8,6 +8,7 @@ import BugReportStats from '../components/BugReportStats'
 import UpdateVersionModal from '../components/UpdateVersionModal'
 import VersionHistoryModal from '../components/VersionHistoryModal'
 import NotificationPreferences from '../components/NotificationPreferences'
+import ThemeToggle from '../components/ThemeToggle'
 import './AdminDashboard.css'
 
 interface Application {
@@ -240,6 +241,24 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleRemindTesting = async (app: Application) => {
+    const qaCount = app.assignedQAs?.length || 0
+    if (qaCount === 0) {
+      alert('No hay QAs asignados a esta aplicación')
+      return
+    }
+
+    if (window.confirm(`¿Enviar recordatorio de testing a ${qaCount} QA(s) asignados a "${app.name}"?`)) {
+      try {
+        const response = await api.post(`/applications/${app._id}/remind-testing`)
+        alert(response.data.message)
+      } catch (error: any) {
+        console.error('Error al enviar recordatorio', error)
+        alert(error.response?.data?.message || 'Error al enviar recordatorio')
+      }
+    }
+  }
+
   const updateBugStatus = async (id: string, status: string) => {
     try {
       await api.patch(`/bug-reports/${id}/status`, { status })
@@ -291,6 +310,7 @@ export default function AdminDashboard() {
         <h1>Panel Administrativo</h1>
         <div className="user-info">
           <span>Bienvenido, {user?.name}</span>
+          <ThemeToggle />
           <button onClick={() => setShowNotificationPreferences(true)} className="btn btn-info" style={{ marginRight: '8px' }}>
             Notificaciones
           </button>
@@ -364,6 +384,9 @@ export default function AdminDashboard() {
                         </button>
                         <button onClick={() => setHistoryApp(app)} className="btn btn-info btn-sm" style={{ marginRight: '8px' }}>
                           Historial
+                        </button>
+                        <button onClick={() => handleRemindTesting(app)} className="btn btn-warning btn-sm" style={{ marginRight: '8px' }} title="Enviar recordatorio de testing a los QAs asignados">
+                          🔔
                         </button>
                         <button onClick={() => handleDelete(app._id)} className="btn btn-danger btn-sm">
                           Eliminar
